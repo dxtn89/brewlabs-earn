@@ -1,0 +1,123 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import contracts from "config/constants/contracts";
+import { useActiveChainId } from "@hooks/useActiveChainId";
+import { isAddress } from "utils";
+import { getDexLogo, getEmptyTokenLogo } from "utils/functions";
+import getTokenLogoURL from "utils/getTokenLogoURL";
+
+import StyledButton from "../../StyledButton";
+import ChainSelect from "../ChainSelect";
+import RouterSelect from "../RouterSelect";
+import TokenLogo from "@components/logo/TokenLogo";
+import { useTokenList } from "state/home/hooks";
+
+const SelectToken = ({ setStep, router, setRouter, lpAddress, setLpAddress, lpInfo }) => {
+  const { chainId } = useActiveChainId();
+  const supportedTokens = useTokenList(chainId);
+
+  const isSupportedChain = Object.keys(contracts.farmFactory).includes(chainId.toString());
+  const token0Address = isAddress(lpInfo?.pair?.token0.address);
+  const token1Address = isAddress(lpInfo?.pair?.token1.address);
+  const notSupported =
+    router?.factory?.toLowerCase() !== lpInfo?.pair?.factory?.toLowerCase() ||
+    supportedTokens
+      .filter((t) => t.chainId === chainId && t.address)
+      .filter(
+        (t) =>
+          t.address.toLowerCase() === token0Address?.toLowerCase() ||
+          t.address.toLowerCase() === token1Address?.toLowerCase()
+      ).length < 2;
+
+  return (
+    <div>
+      <div>
+        <div className="mt-2 text-white">
+          <div className="mb-1">1.Select deployment network:</div>
+          <ChainSelect />
+        </div>
+        <div>
+          <div className="mb-1 text-white">2. Select router:</div>
+          <RouterSelect router={router} setRouter={setRouter} type={"deploy"} />
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <div className={`mb-1 ${lpInfo.pair ? "text-white" : ""}`}>3. Select LP token:</div>
+        <input
+          className="h-[55px] w-full rounded-lg bg-[#FFFFFF0D] p-[16px_14px] text-base text-white outline-none"
+          placeholder={`Search by contract address...`}
+          value={lpAddress}
+          onChange={(e) => {
+            setLpAddress(e.target.value);
+          }}
+        />
+      </div>
+      <div className="mb-3 flex h-[130px] items-center justify-center text-[#FFFFFF40]">
+        {lpInfo.pair ? (
+          <div className="w-full text-sm text-white">
+            <div className="text-center">{notSupported ? "Provided LP token is not supported" : `LP Token found!`}</div>
+            {!notSupported && (
+              <div className="mt-3 flex items-center">
+                <img
+                  src={getDexLogo(router.id)}
+                  alt={""}
+                  className="mr-4 block h-7 w-7 rounded-full shadow-[0px_0px_10px_rgba(255,255,255,0.5)] sm:hidden"
+                  onError={(e: any) => {
+                    e.target.src = getEmptyTokenLogo(chainId);
+                  }}
+                />
+                <div className="relative mx-auto flex w-fit items-center overflow-hidden text-ellipsis whitespace-nowrap sm:flex sm:overflow-visible">
+                  <img
+                    src={getDexLogo(router.id)}
+                    alt={""}
+                    className="absolute -left-12 top-0 hidden h-7 w-7 rounded-full shadow-[0px_0px_10px_rgba(255,255,255,0.5)] sm:block"
+                    onError={(e: any) => {
+                      e.target.src = getEmptyTokenLogo(chainId);
+                    }}
+                  />
+                  <TokenLogo
+                    src={getTokenLogoURL(token0Address, chainId)}
+                    alt={""}
+                    classNames="h-7 w-7 rounded-full"
+                    onError={(e: any) => {
+                      e.target.src = getEmptyTokenLogo(chainId);
+                    }}
+                  />
+                  <TokenLogo
+                    src={getTokenLogoURL(token1Address, chainId)}
+                    alt={""}
+                    classNames="-ml-3 h-7 w-7 rounded-full"
+                    onError={(e: any) => {
+                      e.target.src = getEmptyTokenLogo(chainId);
+                    }}
+                  />
+                  <div className="ml-2 flex-1  overflow-hidden text-ellipsis whitespace-nowrap xsm:flex-none">
+                    {lpInfo.pair.address}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : lpAddress === "" || lpInfo.pending ? (
+          "Pending..."
+        ) : (
+          "Not Found"
+        )}
+      </div>
+      <div className="mb-5 h-[1px] w-full bg-[#FFFFFF80]" />
+      <div className="mx-auto h-12 max-w-[500px]">
+        <StyledButton
+          type="primary"
+          onClick={() => {
+            setStep(2);
+          }}
+          disabled={!lpInfo?.pair || notSupported || !isSupportedChain}
+        >
+          {isSupportedChain ? "Next" : "Not support current chain"}
+        </StyledButton>
+      </div>
+    </div>
+  );
+};
+
+export default SelectToken;

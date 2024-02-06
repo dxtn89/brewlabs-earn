@@ -1,0 +1,805 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useContext, useEffect, useState } from "react";
+import { WNATIVE } from "@brewlabs/sdk";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { toast } from "react-toastify";
+import styled from "styled-components";
+import { useAccount } from "wagmi";
+
+import { chevronLeftSVG, LinkSVG, lockSVG, warningFarmerSVG } from "components/dashboard/assets/svgs";
+import Container from "components/layout/Container";
+import PageHeader from "components/layout/PageHeader";
+import { SkeletonComponent } from "components/SkeletonComponent";
+import WordHighlight from "components/text/WordHighlight";
+
+import { CHAIN_ICONS } from "config/constants/networks";
+import { Version } from "config/constants/types";
+import { DashboardContext } from "contexts/DashboardContext";
+import { useActiveChainId } from "hooks/useActiveChainId";
+import { useSwitchNetwork } from "hooks/useSwitchNetwork";
+import useTokenPrice, { useTokenPrices } from "hooks/useTokenPrice";
+import { getExplorerLink, getNativeSybmol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
+import { useAppDispatch } from "state";
+import { fetchFarmUserDataAsync, setFarmsPublicData, setFarmUserData } from "state/farms";
+import { fetchFarmUserDeposits } from "state/farms/fetchFarmUser";
+import { fetchFarmFeeHistories, fetchFarmTotalRewards } from "state/farms/fetchPublicFarmData";
+import { BIG_ZERO } from "utils/bigNumber";
+import { formatAmount, formatTvl } from "utils/formatApy";
+import { getBalanceNumber } from "utils/formatBalance";
+import { getAddLiquidityUrl, getDexLogo, numberWithCommas } from "utils/functions";
+import getCurrencyId from "utils/getCurrencyId";
+import getTokenLogoURL from "utils/getTokenLogoURL";
+
+import StyledButton from "../StyledButton";
+import ProgressBar from "./ProgressBar";
+import TotalStakedChart from "./TotalStakedChart";
+import StakingHistory from "./FarmingHistory";
+import StakingModal from "./Modals/StakingModal";
+import useFarm from "./hooks/useFarm";
+import { BASE_URL, DEXSCREENER_CHAINNAME } from "config";
+import useFarmImpl from "./hooks/useFarmImpl";
+import { useRouter } from "next/router";
+import TokenLogo from "@components/logo/TokenLogo";
+
+const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
+  const { data } = detailDatas;
+
+  const dispatch = useAppDispatch();
+
+  const { userData: accountData, token, quoteToken, earningToken, earningToken1, reflectionToken } = data;
+
+  const [stakingModalOpen, setStakingModalOpen] = useState(false);
+  const [curType, setCurType] = useState("deposit");
+  const [curGraph, setCurGraph] = useState(0);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const router = useRouter();
+  const { address } = useAccount();
+  const { chainId } = useActiveChainId();
+  const { canSwitch, switchNetwork } = useSwitchNetwork();
+  const { pending, setPending }: any = useContext(DashboardContext);
+
+  const lpPrice = useTokenPrice(data.chainId, data.lpAddress, true);
+  const nativeTokenPrice = useTokenPrice(data.chainId, WNATIVE[data.chainId].address);
+  const tokenPrices = useTokenPrices();
+
+  const { onReward, onHarvest, onCompound, onHarvestDividend, onCompoundDividend } = useFarm(
+    data.poolId,
+    data.farmId,
+    data.chainId,
+    data.contractAddress,
+    data.performanceFee,
+    data.enableEmergencyWithdraw
+  );
+
+  const {
+    onHarvest: onHarvestImpl,
+    onCompound: onCompoundImpl,
+    onHarvestDividend: onHarvestDividendImpl,
+    onCompoundDividend: onCompoundDividendImpl,
+  } = useFarmImpl(
+    data.poolId,
+    data.farmId,
+    data.chainId,
+    data.contractAddress,
+    data.performanceFee,
+    data.enableEmergencyWithdraw
+  );
+
+  useEffect(() => {
+    const fetchtotalRewardsAsync = async () => {
+      if (data.category === 2) {
+        const { availableRewards, availableRewards1, availableReflections } = await fetchFarmTotalRewards(data);
+        dispatch(setFarmsPublicData([{ pid: data.pid, availableRewards, availableRewards1, availableReflections }]));
+      } else {
+        const { availableRewards, availableReflections } = await fetchFarmTotalRewards(data);
+        dispatch(setFarmsPublicData([{ pid: data.pid, availableRewards, availableReflections }]));
+      }
+    };
+
+    const fetchFeeHistoriesAsync = async () => {
+      const { performanceFees, stakedAddresses } = await fetchFarmFeeHistories(data);
+
+      dispatch(
+        setFarmsPublicData([
+          {
+            pid: data.pid,
+            performanceFees: performanceFees,
+            stakedAddresses: stakedAddresses,
+          },
+        ])
+      );
+    };
+
+    fetchtotalRewardsAsync();
+    fetchFeeHistoriesAsync();
+  }, [data.pid]);
+
+  useEffect(() => {
+    const fetchDepositHistoryAsync = async () => {
+      const res = await fetchFarmUserDeposits(data, address);
+      dispatch(setFarmUserData([res]));
+    };
+
+    if (address) {
+      dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
+      fetchDepositHistoryAsync();
+    }
+  }, [address, data.pid]);
+
+  const graphData = () => {
+    let _graphData;
+    switch (curGraph) {
+      case 2:
+        return data.performanceFees ?? [];
+      case 3:
+        return data.stakedAddresses ?? [];
+      default:
+        _graphData = data.TVLData ?? [];
+        _graphData = _graphData.map((v) => +v);
+        if (data.tvl) _graphData.push(data.totalStaked.toNumber());
+        return _graphData;
+    }
+  };
+
+  const showError = (errorMsg: string) => {
+    if (errorMsg) toast.error(errorMsg);
+  };
+
+  const handleHarvest = async () => {
+    setPending(true);
+    try {
+      if (data.version > Version.V2) {
+        if (data.category) {
+          await onHarvestImpl();
+        } else {
+          await onHarvest();
+        }
+      } else {
+        await onReward();
+      }
+      dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
+    } catch (error) {
+      console.log(error);
+      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+    }
+    setPending(false);
+  };
+
+  const handleHarvestDividned = async () => {
+    setPending(true);
+    try {
+      if (data.category) {
+        await onHarvestDividendImpl();
+      } else {
+        await onHarvestDividend();
+      }
+      dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
+    } catch (error) {
+      console.log(error);
+      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+    }
+    setPending(false);
+  };
+
+  const handleCompound = async () => {
+    setPending(true);
+    try {
+      if (data.category) {
+        await onCompoundImpl();
+      } else {
+        await onCompound();
+      }
+      dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
+    } catch (error) {
+      console.log(error);
+      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+    }
+    setPending(false);
+  };
+
+  const handleCompoundDividend = async () => {
+    setPending(true);
+    try {
+      if (data.category) {
+        await onCompoundDividendImpl();
+      } else {
+        await onCompoundDividend();
+      }
+      dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
+    } catch (error) {
+      console.log(error);
+      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+    }
+    setPending(false);
+  };
+
+  const onShareFarm = () => {
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 1000);
+    navigator.clipboard.writeText(`${BASE_URL}${location.pathname}`);
+  };
+
+  const history =
+    data && data.userData?.deposits && address
+      ? data.userData?.deposits.map((deposit) => ({ ...deposit, symbol: data.lpSymbol.split("_")[0] }))
+      : [];
+
+  const earningTokenBalance = getBalanceNumber(accountData.earnings ?? BIG_ZERO, earningToken.decimals);
+  const earningTokenBalance1 = getBalanceNumber(accountData.earnings1 ?? BIG_ZERO, earningToken1?.decimals ?? 18);
+  const reflectionTokenBalance = getBalanceNumber(accountData.reflections ?? BIG_ZERO, reflectionToken?.decimals ?? 18);
+
+  const isDual = data.category === 2;
+
+  return (
+    <AnimatePresence exitBeforeEnter>
+      {
+        <motion.div
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.5 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="absolute left-0 top-0 max-h-screen w-full overflow-y-scroll  pb-[150px]">
+            {address && data ? (
+              <StakingModal
+                open={stakingModalOpen}
+                setOpen={setStakingModalOpen}
+                type={curType}
+                data={data}
+                accountData={accountData}
+              />
+            ) : (
+              ""
+            )}
+            <PageHeader
+              title={
+                <div className="text-[40px]">
+                  <WordHighlight content="Yield Farming" />
+                  <div className="whitespace-wrap mt-5 text-xl font-normal sm:whitespace-nowrap">
+                    Stake, farm, zap and explore indexes for passive income
+                  </div>
+                </div>
+              }
+            />
+            {!data ? (
+              <Container className="font-brand">
+                <div className="flex items-center justify-between font-brand">
+                  <div className="flex w-[160px] flex-col sm:flex-row">
+                    <div className="h-[32px] w-[140px] ">
+                      <StyledButton onClick={() => router.push("/farms")}>
+                        <div className="absolute left-2 top-[7px]">{chevronLeftSVG}</div>
+                        <div className="ml-2">Back</div>
+                      </StyledButton>
+                    </div>
+                  </div>
+                </div>
+              </Container>
+            ) : (
+              <Container className="font-brand">
+                <div className="flex items-center justify-between font-brand">
+                  <div className="flex w-[160px] flex-col">
+                    <div className="h-[32px] w-[140px] ">
+                      <StyledButton onClick={() => router.push("/farms")}>
+                        <div className="absolute left-2 top-[7px]">{chevronLeftSVG}</div>
+                        <div className="ml-2">Back</div>
+                      </StyledButton>
+                    </div>
+                    {data.isCustody ? (
+                      <div className="mt-2 block h-[32px] w-fit xl:mt-0 xl:hidden">
+                        <StyledButton>
+                          <div className="absolute left-2 top-2.5">{lockSVG}</div>
+                          <div className="ml-3 whitespace-nowrap">Brewlabs Custody</div>
+                        </StyledButton>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                  <div className="flex flex-1 justify-end">
+                    {data.isCustody ? (
+                      <div className="hidden w-full max-w-[470px] xl:block">
+                        <div className="ml-5 mt-2 h-[32px] w-fit xl:mt-0">
+                          <StyledButton>
+                            <div className="absolute left-2 top-2.5">{lockSVG}</div>
+                            <div className="ml-3 whitespace-nowrap">Brewlabs Custody</div>
+                          </StyledButton>
+                        </div>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+
+                    <div className="ml-3 flex w-full max-w-fit flex-col justify-end xl:ml-5 xl:max-w-[520px] xl:flex-row">
+                      <StyledButton
+                        className="mb-2 mr-0 !h-8 !w-[140px] bg-[#B9B8B81A] font-brand font-bold text-primary hover:border-white hover:text-white xl:mb-0 xl:mr-5"
+                        type={"default"}
+                        onClick={onShareFarm}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-1.5">{isCopied ? "Copied" : "Share Farm"}</div> {LinkSVG}
+                        </div>
+                      </StyledButton>
+                      {earningToken.projectLink && (
+                        <a
+                          className="h-[32px] w-[140px]"
+                          href={earningToken.projectLink}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <StyledButton>
+                            <div>Website</div>
+                            <div className="absolute right-2 top-2.5 scale-125">{LinkSVG}</div>
+                          </StyledButton>
+                        </a>
+                      )}
+                      <Link
+                        className="ml-0 mt-2 h-[32px] w-[140px] xl:ml-5 xl:mt-0"
+                        target="_blank"
+                        href={`/chart/${DEXSCREENER_CHAINNAME[token.chainId]}/${data.lpAddress}`}
+                        rel="noreferrer"
+                      >
+                        <StyledButton>
+                          <div>Chart</div>
+                          <div className="absolute right-2 top-[7px] -scale-100">{chevronLeftSVG}</div>
+                        </StyledButton>
+                      </Link>
+                      <a
+                        href={getAddLiquidityUrl(data.lpManager, quoteToken, token, data.chainId)}
+                        target="_blank"
+                        className="ml-0 mt-2 h-[32px] w-[140px] xl:ml-5 xl:mt-0"
+                      >
+                        <StyledButton>
+                          <div>Make LP</div>
+                          <div className="absolute right-2 top-[7px] -scale-100">{chevronLeftSVG}</div>
+                        </StyledButton>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-col items-center justify-between md:flex-row">
+                  <div className="mt-4 flex w-[160px] items-center justify-center ">
+                    <TokenLogo
+                      src={getTokenLogoURL(earningToken.address, data.chainId)}
+                      alt={""}
+                      classNames="w-[100px] rounded-full"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-wrap justify-end xl:flex-nowrap">
+                    <div className="primary-shadow relative mt-4 w-full max-w-full rounded bg-[#B9B8B80D] p-[14px_12px_8px_12px] sm:p-[14px_25px_8px_25px] md:max-w-[520px] xl:md:max-w-[470px]">
+                      <div className="flex flex-col justify-between text-xl xsm:flex-row">
+                        <div>
+                          Pool: <span className="text-primary">{data.lpSymbol.split(" ")[0]}</span>
+                          <a
+                            className="ml-1 inline-block"
+                            href={getExplorerLink(data.chainId, "address", data.contractAddress)}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {LinkSVG}
+                          </a>
+                        </div>
+                        <div className="flex">
+                          APR:&nbsp;
+                          <span className="text-primary">
+                            {data.apr || data.apr === 0.0 ? `${data.apr.toFixed(2)}%` : <SkeletonComponent />}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-base  text-[#FFFFFF80]">
+                        <div>
+                          Stake: <span className="text-primary">{data.lpSymbol.split(" ")[0]}</span>
+                          <br />
+                          earn{" "}
+                          <span className="text-primary">
+                            {earningToken.symbol + (earningToken1 ? ` + ${earningToken1.symbol}` : "")}
+                          </span>
+                        </div>
+                        <div className="text-primary">Flexible</div>
+                      </div>
+                      <div className="text-xs text-[#FFFFFF80]">
+                        Deposit Fee {(+data.depositFee).toFixed(2)}%
+                        <div className="tooltip" data-tip="Deposit fees are sent to token owner nominated address.">
+                          <div className="ml-1 mt-[2px]">{warningFarmerSVG("11px")}</div>
+                        </div>
+                        <br />
+                        Withdraw Fee {(+data.withdrawFee).toFixed(2)}%
+                        <div className="tooltip" data-tip="Withdraw fees are sent to token owner nominated address.">
+                          <div className="ml-1 mt-[2px]">{warningFarmerSVG("11px")}</div>
+                        </div>
+                        <br />
+                        Peformance Fee {data.performanceFee ? data.performanceFee / Math.pow(10, 18) : "0.00"}{" "}
+                        {getNativeSybmol(data.chainId)}
+                        <div
+                          className="tooltip"
+                          data-tip="Performance fee is charged per transaction to the Brewlabs Treasury (Brewlabs holders)."
+                        >
+                          <div className="ml-1 mt-[2px]">{warningFarmerSVG("11px")}</div>
+                        </div>
+                      </div>
+                      <div className="absolute bottom-4 right-4 flex items-center">
+                        {data ? (
+                          <>
+                            {isDual ? (
+                              <div className="primary-shadow mr-2.5 rounded-[12px] bg-primary px-1.5 font-roboto text-[10px] font-bold text-black">
+                                Dual reward
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                            <img
+                              src={getDexLogo(data.lpManager)}
+                              alt={""}
+                              className="relative z-10 -mr-3 w-6 rounded-full"
+                            />
+                            <img src={CHAIN_ICONS[data.chainId]} alt={""} className="w-6 rounded-full" />
+                          </>
+                        ) : (
+                          <SkeletonComponent />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="primary-shadow ml-0 mt-4 flex w-full max-w-full flex-wrap justify-between bg-[#B9B8B80D] p-[6px_12px_8px_12px] sm:p-[6px_25px_8px_25px] md:ml-[30px] md:max-w-[520px]">
+                      <div className="mt-2">
+                        <div className="text-xl">Pool Rewards</div>
+                        <div className=" text-[#FFFFFF80]">
+                          <span className="text-primary">{earningToken.symbol}</span> earned
+                          {earningToken1 ? (
+                            <>
+                              <br />
+                              <span className="text-primary">{earningToken1.symbol}</span> earned
+                            </>
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                        {reflectionToken && (
+                          <div className="text-[#FFFFFF80]">
+                            <span className="text-primary">{reflectionToken.symbol}</span> Rewards
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-2">
+                        <div className="text-xl">Pending</div>
+                        <div className=" flex text-primary">
+                          {!address || (data.enableEmergencyWithdraw && data.disableHarvest) ? (
+                            "0.00"
+                          ) : accountData.earnings !== undefined ? (
+                            formatAmount(earningTokenBalance.toFixed(4))
+                          ) : (
+                            <SkeletonComponent />
+                          )}
+                          &nbsp;
+                          {earningToken.symbol}
+                        </div>
+                        {earningToken1 ? (
+                          <div className=" flex text-primary">
+                            {!address || (data.enableEmergencyWithdraw && data.disableHarvest) ? (
+                              "0.00"
+                            ) : accountData.earnings !== undefined ? (
+                              formatAmount(earningTokenBalance1.toFixed(4))
+                            ) : (
+                              <SkeletonComponent />
+                            )}
+                            &nbsp;
+                            {earningToken1.symbol}
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                        {reflectionToken && (
+                          <div className="flex text-primary">
+                            {!address || (data.enableEmergencyWithdraw && data.disableHarvest) ? (
+                              "0.00"
+                            ) : accountData.reflections ? (
+                              formatAmount(reflectionTokenBalance.toFixed(4))
+                            ) : (
+                              <SkeletonComponent />
+                            )}
+                            &nbsp;
+                            {reflectionToken.symbol}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-2">
+                        <div className="text-xl">Total</div>
+                        <div className=" flex text-primary">
+                          {!address ? (
+                            "0.00"
+                          ) : data.availableRewards !== undefined ? (
+                            formatAmount(data.availableRewards.toFixed(2))
+                          ) : (
+                            <SkeletonComponent />
+                          )}
+                          &nbsp;
+                          {earningToken.symbol}
+                        </div>
+                        {earningToken1 ? (
+                          <div className=" flex text-primary">
+                            {!address ? (
+                              "0.00"
+                            ) : data.availableRewards1 !== undefined ? (
+                              formatAmount(data.availableRewards1.toFixed(2))
+                            ) : (
+                              <SkeletonComponent />
+                            )}
+                            &nbsp;
+                            {earningToken1.symbol}
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                        {reflectionToken && (
+                          <div className=" flex text-primary">
+                            {!address ? (
+                              "0.00"
+                            ) : data.availableReflections !== undefined ? (
+                              formatAmount(data.availableReflections.toFixed(2))
+                            ) : (
+                              <SkeletonComponent />
+                            )}
+                            &nbsp;
+                            {reflectionToken.symbol}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-7">
+                  <ProgressBar endBlock={1} remaining={0} />
+                </div>
+                <div className="mt-10 flex h-[494px] w-full flex-col justify-between md:flex-row">
+                  <div className="w-full md:w-[40%]">
+                    <TotalStakedChart
+                      data={graphData()}
+                      symbol={
+                        curGraph === 3
+                          ? ""
+                          : curGraph !== 2
+                          ? data.lpSymbol.split(" ")[0]
+                          : getNativeSybmol(data.chainId)
+                      }
+                      price={curGraph === 3 ? 1 : curGraph !== 2 ? lpPrice : nativeTokenPrice}
+                      curGraph={curGraph}
+                    />
+                    <div
+                      className={`primary-shadow mt-[80px] flex w-full cursor-pointer justify-between rounded transition ${
+                        curGraph === 0
+                          ? "bg-primary text-black"
+                          : "bg-[#B9B8B81A] text-[#FFFFFFBF] hover:bg-[#b9b8b82f]"
+                      } p-[12px_15px] xl:mt-20`}
+                      onClick={() => setCurGraph(0)}
+                    >
+                      <div>Total Staked Value</div>
+                      <div className="flex">
+                        {data.tvl || data.tvl === 0.0 ? `${formatTvl(data.tvl, 1)}` : <SkeletonComponent />}
+                      </div>
+                    </div>
+                    <div
+                      className={`primary-shadow mt-2.5 flex w-full cursor-pointer justify-between rounded transition ${
+                        curGraph === 2
+                          ? "bg-primary text-black"
+                          : "bg-[#B9B8B81A] text-[#FFFFFFBF] hover:bg-[#b9b8b82f]"
+                      } p-[12px_15px]`}
+                      onClick={() => setCurGraph(2)}
+                    >
+                      <div>
+                        Performance fees<span className="opacity-75"> (24hrs)</span>
+                      </div>
+                      <div className="flex">
+                        {data.performanceFees !== undefined ? (
+                          data.performanceFees[data.performanceFees.length - 1].toFixed(4)
+                        ) : (
+                          <SkeletonComponent />
+                        )}
+                        &nbsp;
+                        <span className={`${curGraph === 2 ? "text-black" : "text-primary"}`}>
+                          {getNativeSybmol(data.chainId)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`primary-shadow mt-2.5 flex w-full cursor-pointer justify-between rounded transition ${
+                        curGraph === 3
+                          ? "bg-primary text-black"
+                          : "bg-[#B9B8B81A] text-[#FFFFFFBF] hover:bg-[#b9b8b82f]"
+                      } p-[12px_15px]`}
+                      onClick={() => setCurGraph(3)}
+                    >
+                      <div>
+                        Staked addresses<span className="opacity-75"> (24hrs)</span>
+                      </div>
+                      <div className="flex">
+                        {data.stakedAddresses !== undefined ? (
+                          numberWithCommas(data.stakedAddresses[data.stakedAddresses.length - 1])
+                        ) : (
+                          <SkeletonComponent />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="relative mt-10 flex w-full flex-col justify-between md:mt-0 md:w-[57%]">
+                    <div className="flex w-full flex-col sm:flex-row">
+                      <div className="primary-shadow flex w-full cursor-pointer justify-between rounded bg-[#B9B8B81A] p-[12px_15px]">
+                        <div>My Staked Tokens</div>
+                        <div className="flex ">
+                          {!address ? (
+                            "0.00"
+                          ) : accountData.stakedBalance ? (
+                            `${formatAmount(getBalanceNumber(accountData.stakedBalance, 18))}`
+                          ) : (
+                            <SkeletonComponent />
+                          )}
+                          &nbsp;
+                          <span className="w-[80px] overflow-hidden text-ellipsis whitespace-nowrap text-primary">
+                            {data.lpSymbol.split(" ")[0]}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="primary-shadow mt-2 flex w-full cursor-pointer justify-between rounded bg-[#B9B8B81A] p-[12px_15px] sm:ml-4 sm:mt-0">
+                        <div>USD Value</div>
+                        <div className="flex">
+                          {!address || !lpPrice ? (
+                            "$0.00"
+                          ) : accountData.stakedBalance ? (
+                            `$${formatAmount(getBalanceNumber(accountData.stakedBalance, 18) * (lpPrice ?? 0))}`
+                          ) : (
+                            <SkeletonComponent />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-8 flex w-full flex-col xsm:flex-row">
+                      <div className="mr-0 flex-1 xsm:mr-[14px]">
+                        <div className="text-xl text-[#FFFFFFBF]">Pool Rewards</div>
+                        <div className="mt-2 h-[56px]">
+                          <StyledButton
+                            type="teritary"
+                            boxShadow={address && earningTokenBalance > 0}
+                            disabled={
+                              !address ||
+                              earningTokenBalance === 0 ||
+                              (data.enableEmergencyWithdraw && data.disableHarvest) ||
+                              pending
+                            }
+                            onClick={handleHarvest}
+                          >
+                            <div className="flex w-full items-center justify-between px-2">
+                              <div className="flex">
+                                Harvest&nbsp;
+                                {!address || (data.enableEmergencyWithdraw && data.disableHarvest) ? (
+                                  0
+                                ) : accountData.earnings !== undefined ? (
+                                  formatAmount(earningTokenBalance.toFixed(4))
+                                ) : (
+                                  <SkeletonComponent />
+                                )}
+                                <span className="text-primary">&nbsp;{earningToken.symbol}</span>
+                                {earningToken1 ? (
+                                  <>
+                                    &nbsp;&&nbsp;
+                                    <span className="text-primary">{earningToken1.symbol}</span>&nbsp;
+                                    {!address || (data.enableEmergencyWithdraw && data.disableHarvest) ? (
+                                      0
+                                    ) : accountData.earnings !== undefined ? (
+                                      formatAmount(earningTokenBalance1.toFixed(4))
+                                    ) : (
+                                      <SkeletonComponent />
+                                    )}
+                                  </>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
+                              <div className="text-sm">
+                                $
+                                {(
+                                  earningTokenBalance *
+                                    (tokenPrices[getCurrencyId(data.chainId, earningToken.address)] ?? 0) +
+                                  (earningToken1
+                                    ? earningTokenBalance1 *
+                                      (tokenPrices[getCurrencyId(data.chainId, earningToken1.address)] ?? 0)
+                                    : 0)
+                                ).toFixed(2)}
+                              </div>
+                            </div>
+                          </StyledButton>
+                        </div>
+                        {data.compound && (
+                          <div className="mt-2 h-[56px]">
+                            <StyledButton
+                              type="teritary"
+                              boxShadow={address && earningTokenBalance > 0}
+                              disabled={
+                                !address ||
+                                earningTokenBalance === 0 ||
+                                (data.enableEmergencyWithdraw && data.disableHarvest) ||
+                                pending
+                              }
+                              onClick={handleCompound}
+                            >
+                              <div className="flex w-full items-center justify-between px-4">
+                                <div className="flex">
+                                  Compound&nbsp;
+                                  {!address || (data.enableEmergencyWithdraw && data.disableHarvest) ? (
+                                    0
+                                  ) : accountData.earnings !== undefined ? (
+                                    formatAmount(earningTokenBalance.toFixed(4))
+                                  ) : (
+                                    <SkeletonComponent />
+                                  )}
+                                  <span className="text-primary">&nbsp;{earningToken.symbol}</span>
+                                </div>
+                                <div className="text-sm">
+                                  $
+                                  {(
+                                    earningTokenBalance *
+                                    (tokenPrices[getCurrencyId(data.chainId, earningToken.address)] ?? 0)
+                                  ).toFixed(2)}
+                                </div>
+                              </div>
+                            </StyledButton>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <StakingHistory history={history} />
+                    <div className="relative mb-[150px] mt-2 flex w-full flex-col  xsm:flex-row md:mb-0">
+                      {data.chainId !== chainId ? (
+                        <div className="h-12 flex-1">
+                          <StyledButton
+                            onClick={() => {
+                              if (canSwitch) switchNetwork(data.chainId);
+                            }}
+                          >
+                            Switch to {getNetworkLabel(data.chainId)}
+                          </StyledButton>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mb-2 mr-0 h-12 flex-none xsm:mb-0 xsm:mr-5 xsm:flex-1">
+                            <StyledButton
+                              onClick={() => {
+                                setStakingModalOpen(true);
+                                setCurType("deposit");
+                              }}
+                              disabled={pending || !address}
+                            >
+                              Deposit {data.lpSymbol.split(" ")[0]}
+                            </StyledButton>
+                          </div>
+                          <div className="h-12 flex-none xsm:flex-1">
+                            <StyledButton
+                              type={"secondary"}
+                              onClick={() => {
+                                setStakingModalOpen(true);
+                                setCurType("withdraw");
+                              }}
+                              disabled={pending || !address}
+                            >
+                              <div className="text-[#FFFFFFBF]">
+                                Withdraw <span className="text-primary">{data.lpSymbol.split(" ")[0]}</span>
+                              </div>
+                            </StyledButton>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Container>
+            )}
+          </div>
+        </motion.div>
+      }
+    </AnimatePresence>
+  );
+};
+
+export default FarmingDetail;

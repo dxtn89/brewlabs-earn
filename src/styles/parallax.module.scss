@@ -1,0 +1,43 @@
+.parallax {
+  position: relative;
+  z-index: 0;
+  min-height: 50vh;
+  display: grid;
+  grid-template-areas: "stack";
+}
+
+.parallax > * {
+  grid-area: stack;
+  animation: parallaxMove linear;
+  animation-timeline: scroll(root);
+}
+
+.parallax_coin_1 {
+  --parallax-speed: -8;
+}
+
+.parallax_coin_2 {
+  --parallax-speed: -10;
+}
+
+.parallax_coin_3 {
+  --parallax-speed: -12;
+}
+
+.parallax_phone_back {
+  --parallax-speed: 5;
+}
+
+.parallax_phone_front {
+  --parallax-speed: 7;
+}
+
+.parallax_bg {
+  --parallax-speed: 13;
+}
+
+@keyframes parallaxMove {
+  to {
+    transform: translateY(calc(var(--parallax-speed) * 200px));
+  }
+}
