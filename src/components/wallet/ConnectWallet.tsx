@@ -13,6 +13,10 @@ import { useGlobalState } from "state";
 import SwitchNetworkModal from "../network/SwitchNetworkModal";
 import WrongNetworkModal from "../network/WrongNetworkModal";
 
+//Solana
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+
 interface ConnectWalletProps {
   allowDisconnect?: boolean;
 }
@@ -46,16 +50,17 @@ const ConnectWallet = ({ allowDisconnect }: ConnectWalletProps) => {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-shrink-0 border-t border-gray-200 p-4 dark:border-gray-800">
+    <div className="flex flex-column flex-shrink-0 border-t border-gray-200 p-4 dark:border-gray-800">
       <SwitchNetworkModal
         open={openSwitchNetworkModal}
         networks={supportedNetworks}
         onDismiss={() => setOpenSwitchNetworkModal(false)}
       />
-      <WrongNetworkModal
+      {/* <WrongNetworkModal
         open={!!isWrongNetwork || !supportedNetworks.map((network) => network.id).includes(chainId)}
         currentChain={supportedNetworks.find((network) => network.id === chainId) ?? supportedNetworks[0]}
-      />
+      /> */}
+      <WalletMultiButton />
 
       {!isConnected ? (
         <button

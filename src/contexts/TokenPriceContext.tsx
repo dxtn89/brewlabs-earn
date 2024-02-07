@@ -28,51 +28,50 @@ const TokenPriceContextProvider = ({ children }: any) => {
 
   useSlowRefreshEffect(() => {
     const to = Math.floor(Date.now() / 1000);
-    axios
-      .get(
-        `https://api.dex.guru/v1/tradingview/history?symbol=0x6aac56305825f712fd44599e59f2ede51d42c3e7-bsc_USD&resolution=10&from=${
-          to - 3600 * 24
-        }&to=${to}`
-      )
-      .then((result) => setPrices({ brewlabs: { usd: result.data.c[result.data.c.length - 1] } }))
-      .catch((e) => console.log(e));
+    // axios
+    //   .get(
+    //     `https://api.dex.guru/v1/tradingview/history?symbol=0x6aac56305825f712fd44599e59f2ede51d42c3e7-bsc_USD&resolution=10&from=${
+    //       to - 3600 * 24
+    //     }&to=${to}`
+    //   )
+    //   .then((result) => setPrices({ brewlabs: { usd: result.data.c[result.data.c.length - 1] } }))
+    //   .catch((e) => console.log(e));
   }, []);
 
   useSlowRefreshEffect(() => {
-    axios
-      .get(`${API_URL}/prices`)
-      .then((res) => {
-        if (res.data?.tokenPrices) setTokenPrices(res.data.tokenPrices);
-        if (res.data?.lpPrices) setLPPrices(res.data.lpPrices);
-      })
-      .catch((e) => console.log(e));
+    // axios
+    //   .get(`${API_URL}/prices`)
+    //   .then((res) => {
+    //     if (res.data?.tokenPrices) setTokenPrices(res.data.tokenPrices);
+    //     if (res.data?.lpPrices) setLPPrices(res.data.lpPrices);
+    //   })
+    //   .catch((e) => console.log(e));
   }, []);
 
   useSlowRefreshEffect(() => {
-    axios
-      .get(`${API_URL}/cg/prices`)
-      .then((res) => {
-        if (res.data) {
-          let data = {};
-          for (let i = 0; i < res.data.length; i++) {
-            data[+res.data[i].chainId] = res.data[i].prices;
-          }
-          setCGPrices(data);
-        }
-      })
-      .catch((e) => console.log(e));
+    // axios
+    //   .get(`${API_URL}/cg/prices`)
+    //   .then((res) => {
+    //     if (res.data) {
+    //       let data = {};
+    //       for (let i = 0; i < res.data.length; i++) {
+    //         data[+res.data[i].chainId] = res.data[i].prices;
+    //       }
+    //       setCGPrices(data);
+    //     }
+    //   })
+    //   .catch((e) => console.log(e));
   }, []);
 
   useSlowRefreshEffect(() => {
-    const to = Math.floor(Date.now() / 1000);
-    axios
-      .get(
-        `https://api.dex.guru/v1/tradingview/history?symbol=${WETH_ADDR[chainId]}-${
-          chainId === 56 ? "bsc" : "eth"
-        }_USD&resolution=10&from=${to - 3600 * 24}&to=${to}`
-      )
-      .then((result) => setETHPrice(result.data.c[result.data.c.length - 1]))
-      .catch((e) => console.log(e));
+    // const to = Math.floor(Date.now() / 1000);
+    // axios
+    //   .get(
+    //     `https://api.dex.guru/v1/tradingview/history?symbol=${WETH_ADDR[chainId]}-${chainId === 56 ? "bsc" : "eth"
+    //     }_USD&resolution=10&from=${to - 3600 * 24}&to=${to}`
+    //   )
+    //   .then((result) => setETHPrice(result.data.c[result.data.c.length - 1]))
+    //   .catch((e) => console.log(e));
   }, []);
   return (
     <TokenPriceContext.Provider value={{ prices, cgprices, tokenPrices, lpPrices, ethPrice }}>

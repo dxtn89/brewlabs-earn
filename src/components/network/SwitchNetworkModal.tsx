@@ -20,7 +20,7 @@ const SwitchNetworkModal = ({ open, networks, onDismiss }: SwitchNetworkModalPro
   const { canSwitch, switchNetwork, isLoading, isSuccess, error, pendingChainId } = useSwitchNetwork();
   const { chainId } = useActiveChainId();
   const tokenPrices = useTokenPrices();
-
+  // console.log("pendingChainId", pendingChainId, "pendingChainId")
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
@@ -86,12 +86,14 @@ const SwitchNetworkModal = ({ open, networks, onDismiss }: SwitchNetworkModalPro
                         <p className="text-sm font-medium text-gray-900">{network.name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-500">
                           Current price: {` $`}
-                          {tokenPrices[
-                            getCurrencyId(
-                              network.id,
-                              NATIVE_CURRENCIES[network.id === 0 ? ChainId.BSC_MAINNET : network.id].wrapped.address
-                            )
-                          ]?.toFixed(5) ?? "0.000"}
+                          {network.id == 900 || network.id == 901
+                            ? "Solana token value"
+                            : tokenPrices[
+                              getCurrencyId(
+                                network.id,
+                                NATIVE_CURRENCIES[network.id === 0 ? ChainId.BSC_MAINNET : network.id].wrapped.address
+                              )
+                            ]?.toFixed(5) ?? "0.000"}
                         </p>
                       </div>
 

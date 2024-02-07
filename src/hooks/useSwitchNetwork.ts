@@ -63,6 +63,10 @@ export function useSwitchNetwork() {
 
   const switchNetwork = useCallback(
     (chainId: number) => {
+      if (chainId == 900 || chainId || 901) {
+        console.log("It's Solana!!, swtich to phantom")
+        return;
+      }
       if (isConnected && typeof _switchNetwork === "function") {
         return _switchNetwork(chainId);
       }
@@ -75,12 +79,12 @@ export function useSwitchNetwork() {
     () =>
       isConnected
         ? !!_switchNetworkAsync &&
-          connector?.id !== ConnectorNames.WalletConnect &&
-          !(
-            typeof window !== "undefined" &&
-            // @ts-ignore // TODO: add type later
-            (window.ethereum?.isSafePal || window.ethereum?.isMathWallet)
-          )
+        connector?.id !== ConnectorNames.WalletConnect &&
+        !(
+          typeof window !== "undefined" &&
+          // @ts-ignore // TODO: add type later
+          (window.ethereum?.isSafePal || window.ethereum?.isMathWallet)
+        )
         : true,
     [_switchNetworkAsync, isConnected, connector]
   );

@@ -30,20 +30,20 @@ export async function fetchAllPairs(criteria, chain = null, type = "none") {
     if (isAddress(criteria) || type === "simple") {
       const pair = brewPairs.find((pair) => pair.address === criteria.toLowerCase());
       if (pair) chain = DEXSCREENER_CHAINNAME[pair.chainId];
-      if (isAddress(criteria) && chain) {
-        const url = `https://api.dexscreener.com/latest/dex/pairs/${chain}/${criteria}`;
-        let { data: response } = await axios.post(`https://pein-api.vercel.app/api/tokenController/getHTML`, { url });
+      // if (isAddress(criteria) && chain) {
+      //   const url = `https://api.dexscreener.com/latest/dex/pairs/${chain}/${criteria}`;
+      //   let { data: response } = await axios.post(`https://pein-api.vercel.app/api/tokenController/getHTML`, { url });
 
-        const pair = response?.result?.pair;
-        if (pair) {
-          searchedPairs = [getPairParams(pair)];
-        }
-      } else {
-        const url = `https://io.dexscreener.com/dex/search/v3/pairs?q=${criteria}`;
-        let { data: response } = await axios.post(`https://pein-api.vercel.app/api/tokenController/getHTML`, { url });
-        const pairs = await analyzePairLog(response.result);
-        searchedPairs = pairs;
-      }
+      //   const pair = response?.result?.pair;
+      //   if (pair) {
+      //     searchedPairs = [getPairParams(pair)];
+      //   }
+      // } else {
+      //   const url = `https://io.dexscreener.com/dex/search/v3/pairs?q=${criteria}`;
+      //   let { data: response } = await axios.post(`https://pein-api.vercel.app/api/tokenController/getHTML`, { url });
+      //   const pairs = await analyzePairLog(response.result);
+      //   searchedPairs = pairs;
+      // }
     }
 
     searchedPairs = searchedPairs

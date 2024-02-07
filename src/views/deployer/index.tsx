@@ -27,6 +27,39 @@ import PoolList from "./PoolList";
 import SelectionPanel from "./SelectionPanel";
 import { DocSVG } from "@components/dashboard/assets/svgs";
 
+///Solana
+import { FC, useCallback } from 'react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  Connection,
+  sendAndConfirmTransaction,
+  LAMPORTS_PER_SOL,
+  clusterApiUrl,
+} from '@solana/web3.js';
+import {
+  MINT_SIZE,
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  createInitializeMintInstruction,
+  getMinimumBalanceForRentExemptMint,
+  getAssociatedTokenAddress,
+  createAssociatedTokenAccountInstruction,
+  createMintToInstruction,
+  ExtensionType,
+  createInitializeNonTransferableMintInstruction,
+  getMintLen,
+  mintTo,
+  createAccount,
+  transfer,
+  burn,
+  closeAccount,
+} from '@solana/spl-token';
+import { createCreateMetadataAccountV3Instruction, PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
+
 const Deployer = ({ page, type }: { page: number; type?: string }) => {
   const [curFilter, setCurFilter] = useState(page);
   const [criteria, setCriteria] = useState("");
@@ -184,6 +217,224 @@ const Deployer = ({ page, type }: { page: number; type?: string }) => {
     }
   };
 
+  // Create Token
+
+  const { connection } = useConnection();
+  // const connection = new Connection("https://nd-091-815-987.p2pify.com/4e6a4589de93c545f7817575cd159b4f", { wsEndpoint: "wss://ws-nd-091-815-987.p2pify.com/4e6a4589de93c545f7817575cd159b4f" });
+
+  const { publicKey, sendTransaction } = useWallet();
+  // console.log(publicKey)
+  // const [tokenName, setTokenName] = useState('')
+  // const [symbol, setSymbol] = useState('')
+  // const [metadata, setMetadata] = useState('')
+  // const [amount, setAmount] = useState('')
+  // const [decimals, setDecimals] = useState('')
+
+  const onClick = useCallback(async (form) => {
+    const lamports = await getMinimumBalanceForRentExemptMint(connection);
+    const mintKeypair = Keypair.generate();
+    const tokenATA = await getAssociatedTokenAddress(mintKeypair.publicKey, publicKey);
+
+    const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
+      {
+        metadata: PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("metadata"),
+            PROGRAM_ID.toBuffer(),
+            mintKeypair.publicKey.toBuffer(),
+          ],
+          PROGRAM_ID,
+        )[0],
+        mint: mintKeypair.publicKey,
+        mintAuthority: publicKey,
+        payer: publicKey,
+        updateAuthority: publicKey,
+      },
+      {
+        createMetadataAccountArgsV3: {
+          data: {
+            name: form.tokenName,
+            symbol: form.symbol,
+            uri: form.metadata,
+            creators: null,
+            sellerFeeBasisPoints: 0,
+            uses: null,
+            collection: null,
+          },
+          isMutable: true,
+          collectionDetails: null,
+        },
+      },
+    );
+    console.log('createMetadataInstruction', createMetadataInstruction)
+    return;
+    const createNewTokenTransaction = new Transaction().add(
+      SystemProgram.createAccount({
+        fromPubkey: publicKey,
+        newAccountPubkey: mintKeypair.publicKey,
+        space: MINT_SIZE,
+        lamports: lamports,
+        programId: TOKEN_PROGRAM_ID,
+      }),
+      createInitializeMintInstruction(
+        mintKeypair.publicKey,
+        form.decimals,
+        publicKey,
+        publicKey,
+        TOKEN_PROGRAM_ID),
+      createAssociatedTokenAccountInstruction(
+        publicKey,
+        tokenATA,
+        publicKey,
+        mintKeypair.publicKey,
+      ),
+      createMintToInstruction(
+        mintKeypair.publicKey,
+        tokenATA,
+        publicKey,
+        form.amount * Math.pow(10, form.decimals),
+      ),
+      createMetadataInstruction
+    );
+    // createNewTokenTransaction.feePayer = publicKey
+    // let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
+    // console.log("blockhash", blockhash)
+    // createNewTokenTransaction.recentBlockhash = blockhash;
+    console.log("createNewTokenTransaction", createNewTokenTransaction)
+    console.log("connection", createNewTokenTransaction)
+    console.log("mintKeypair", mintKeypair)
+    const signature = await sendTransaction(createNewTokenTransaction, connection, { signers: [mintKeypair] });
+
+    console.log('Token mint transaction sent. Signature:', signature);
+  }, [publicKey, connection, sendTransaction]);
+
+  const onClickCreateNTToken = useCallback(async (form) => {
+
+    console.log("My address:", publicKey.toString());
+
+    // Generate new keypair for Mint Account
+    const mintKeypair = Keypair.generate();
+    // Address for Mint Account
+    const mint = mintKeypair.publicKey;
+    // Decimals for Mint Account
+    const decimals = 2;
+    // Authority that can mint new tokens
+    const mintAuthority = publicKey;
+
+    // Size of Mint Account with extension
+    const mintLen = getMintLen([ExtensionType.NonTransferable]);
+
+    // Minimum lamports required for Mint Account
+    const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
+
+    const tokenATA = await getAssociatedTokenAddress(mintKeypair.publicKey, publicKey);
+
+    // Instruction to invoke System Program to create new account
+    const createAccountInstruction = SystemProgram.createAccount({
+      fromPubkey: publicKey, // Account that will transfer lamports to created account
+      newAccountPubkey: mint, // Address of the account to create
+      space: mintLen, // Amount of bytes to allocate to the created account
+      lamports, // Amount of lamports transferred to created account
+      programId: TOKEN_2022_PROGRAM_ID, // Program assigned as owner of created account
+    });
+
+    // Instruction to initialize the NonTransferable Extension
+    const initializeNonTransferableMintInstruction =
+      createInitializeNonTransferableMintInstruction(
+        mint, // Mint Account address
+        TOKEN_2022_PROGRAM_ID, // Token Extension Program ID
+      );
+
+    // Instruction to initialize Mint Account data
+    const initializeMintInstruction = createInitializeMintInstruction(
+      mint, // Mint Account Address
+      decimals, // Decimals of Mint
+      mintAuthority, // Designated Mint Authority
+      null, // Optional Freeze Authority
+      TOKEN_2022_PROGRAM_ID, // Token Extension Program ID
+    );
+
+    const associatedTokenAccountInstruction = createAssociatedTokenAccountInstruction(
+      publicKey,
+      tokenATA,
+      publicKey,
+      mintKeypair.publicKey,
+    );
+
+    const mintToInstruction = createMintToInstruction(
+      mintKeypair.publicKey,
+      tokenATA,
+      publicKey,
+      form.amount * Math.pow(10, form.decimals),
+    );
+
+    const createMetadataInstruction = createCreateMetadataAccountV3Instruction(
+      {
+        metadata: PublicKey.findProgramAddressSync(
+          [
+            Buffer.from("metadata"),
+            PROGRAM_ID.toBuffer(),
+            mintKeypair.publicKey.toBuffer(),
+          ],
+          PROGRAM_ID,
+        )[0],
+        mint: mintKeypair.publicKey,
+        mintAuthority: publicKey,
+        payer: publicKey,
+        updateAuthority: publicKey,
+      },
+      {
+        createMetadataAccountArgsV3: {
+          data: {
+            name: form.tokenName,
+            symbol: form.symbol,
+            uri: form.metadata,
+            creators: null,
+            sellerFeeBasisPoints: 0,
+            uses: null,
+            collection: null,
+          },
+          isMutable: true,
+          collectionDetails: null,
+        },
+      },
+    );
+    console.log('createMetadataInstruction', createMetadataInstruction)
+    // Add instructions to new transaction
+    const transaction = new Transaction().add(
+      createAccountInstruction,
+      initializeNonTransferableMintInstruction,
+      initializeMintInstruction,
+      associatedTokenAccountInstruction,
+      mintToInstruction,
+      createMetadataInstruction
+    );
+
+    // Send transaction
+    // const transactionSignature = await sendAndConfirmTransaction(
+    //   connection,
+    //   transaction,
+    //   [payer, mintKeypair], // Signers
+    // );
+
+    // console.log(
+    //   "\nCreate Mint Account:",
+    //   `https://solana.fm/tx/${transactionSignature}?cluster=devnet-solana`,
+    // );
+
+
+
+    // createNewTokenTransaction.feePayer = publicKey
+    // let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
+    // console.log("blockhash", blockhash)
+    // createNewTokenTransaction.recentBlockhash = blockhash;
+
+    return;
+    const signature = await sendTransaction(transaction, connection, { signers: [mintKeypair] });
+
+    console.log('Token mint transaction sent. Signature:', signature);
+  }, [publicKey, connection, sendTransaction]);
+
   return (
     <PageWrapper>
       {renderDetailPage()}
@@ -253,6 +504,19 @@ const Deployer = ({ page, type }: { page: number; type?: string }) => {
                     curFilter={curFilter}
                   />
                 </div>
+
+                <button
+                  className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
+                  onClick={() => onClick({ decimals: 9, amount: 10000, metadata: "", symbol: "BRWT", tokenName: "Brew Sol" })}>
+                  <span>Create Token</span>
+                </button>
+
+                <button
+                  className="px-8 m-2 btn animate-pulse bg-gradient-to-r from-[#9945FF] to-[#14F195] hover:from-pink-500 hover:to-yellow-500 ..."
+                  onClick={() => onClickCreateNTToken({ decimals: 9, amount: 10000, metadata: "", symbol: "BRWT", tokenName: "Brew Sol" })}>
+                  <span>Create None Trasferable</span>
+                </button>
+
               </Container>
             </div>
           </motion.div>
