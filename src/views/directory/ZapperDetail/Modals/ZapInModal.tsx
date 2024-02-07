@@ -36,7 +36,7 @@ import { getExternalMasterChefAddress } from "utils/addressHelpers";
 import { useNativeTokenPrice } from "@hooks/useUsdPrice";
 import useUnstakeFarms from "../hooks/useUnstakeFarms";
 import Link from "next/link";
-import { getNativeSybmol } from "lib/bridge/helpers";
+import { getNativeSymbol } from "lib/bridge/helpers";
 import { getAddLiquidityUrl } from "utils/functions";
 
 const ZapInModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; data: any }) => {
@@ -192,7 +192,7 @@ const ZapInModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; data
               </div>
               <div className="mt-1 text-right text-sm">
                 <div>
-                  My <span className="text-primary">{getNativeSybmol(chainId)}</span> :{" "}
+                  My <span className="text-primary">{getNativeSymbol(chainId)}</span> :{" "}
                   {currencyBalance ? currencyBalance.toFixed(2) : "0.00"}
                 </div>
                 <div>

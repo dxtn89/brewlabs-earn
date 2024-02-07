@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import PoolCard from "./PoolCard";
-import { PlusSVG } from "@components/dashboard/assets/svgs";
-import DeployerModal from "views/directory/DeployerModal";
-import { useState } from "react";
+
 import { Category } from "config/constants/types";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import ButtonProductDeploy from "@components/productDeployer/ButtonProductDeploy";
 
 const PoolList = ({
   pools,
@@ -33,16 +33,8 @@ const PoolList = ({
   curFilter: Category;
 }) => {
   return (
-    <StyledContainer>
-      <DeployerModal
-        open={deployerOpen}
-        setOpen={setDeployerOpen}
-        step={step}
-        setStep={setStep}
-        deployType={deployType}
-        setDeployType={setDeployType}
-      />
-      <PoolHeader>
+    <div className="relative mx-auto mb-4 flex w-full flex-col gap-1 rounded-3xl border-t border-slate-600 bg-zinc-900 px-3 pb-10 pt-4 shadow-xl shadow-amber-500/10 sm:px-10 md:mx-0">
+      <div className="hidden justify-between sm:flex">
         <div className="min-w-[80px] cursor-pointer" onClick={() => setSortOrder("chainId")}>
           Network
         </div>
@@ -65,8 +57,8 @@ const PoolList = ({
         <div className="min-w-[80px] cursor-pointer" onClick={() => setSortOrder("apr")}>
           Performance
         </div>
-      </PoolHeader>
-      <div className="h-[1px] w-full bg-[#FFFFFF80]" />
+      </div>
+      <div className="divider my-1"></div>
       <PoolPanel>
         {!loading && <div className="mt-3 text-center">loading...</div>}
         {loading &&
@@ -83,32 +75,32 @@ const PoolList = ({
             );
           })}
       </PoolPanel>
-      <div
-        className="mx-auto my-8 mt-5 flex w-full max-w-[320px] cursor-pointer items-center justify-center rounded-lg border border-[#FFFFFF80] bg-[#B9B8B80D] py-2.5 text-lg text-[#FFFFFF80] transition hover:text-white hover:shadow-[0px_1px_3px_white]"
-        onClick={() => {
-          setDeployerOpen(true);
-          setStep(0);
-        }}
-      >
-        <div className="-mt-0.5 mr-2.5 scale-150 text-primary">{PlusSVG}</div>
-        <div>Deploy a Brewlabs Product</div>
+
+      <div className="text-center">
+        <svg
+          className="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+          />
+        </svg>
+        <h3 className="mt-2 text-sm font-semibold text-gray-900">No products</h3>
+        <p className="mt-1 text-sm text-gray-500">Get started by creating a new product.</p>
+        <div className="mx-auto mt-6 w-fit">
+          <ButtonProductDeploy />
+        </div>
       </div>
-    </StyledContainer>
+    </div>
   );
 };
-
-const PoolHeader = styled.div`
-  margin-right: 16px;
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  font-size: 18px;
-  color: #ffffff80;
-
-  @media screen and (max-width: 1080px) {
-    display: none;
-  }
-`;
 
 const PoolPanel = styled.div`
   overflow-y: scroll;
@@ -135,21 +127,6 @@ const PoolPanel = styled.div`
     ::-webkit-scrollbar {
       display: none !important;
     }
-  }
-`;
-
-const StyledContainer = styled.div`
-  background: rgba(185, 184, 184, 0.05);
-  border: 0.5px solid rgba(255, 255, 255, 0.25);
-  border-radius: 6px;
-  padding: 0 20px;
-  @media screen and (max-width: 1080px) {
-    > div:nth-child(2) {
-      display: none;
-    }
-    border: none;
-    background: none;
-    padding: 0;
   }
 `;
 

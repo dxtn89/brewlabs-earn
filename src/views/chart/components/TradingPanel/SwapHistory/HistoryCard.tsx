@@ -1,5 +1,5 @@
 import { getEllipsis, getExplorerLogo } from "utils/functions";
-import { getExplorerLink, getNativeSybmol } from "lib/bridge/helpers";
+import { getExplorerLink, getNativeSymbol } from "lib/bridge/helpers";
 import StyledPrice from "@components/StyledPrice";
 import { useRef } from "react";
 import { ChevronDownSVG } from "@components/dashboard/assets/svgs";
@@ -125,7 +125,7 @@ export default function HistoryCard({ list, i, setCriteria, setShowType, selecte
               <div className="">{list.amount}</div>
             </div>
             <div className="flex items-center">
-              <div>{getNativeSybmol(selectedPair.chainId)}:</div>&nbsp;
+              <div>{getNativeSymbol(selectedPair.chainId)}:</div>&nbsp;
               <div className="">{list.nativeAmount}</div>
             </div>
           </div>

@@ -13,7 +13,7 @@ import { chevronLeftSVG, downloadSVG, LinkSVG } from "components/dashboard/asset
 import LogoIcon from "components/LogoIcon";
 import { DashboardContext } from "contexts/DashboardContext";
 import { useActiveChainId } from "@hooks/useActiveChainId";
-import { getNativeSybmol, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { setIndexesPublicData, updateUserBalance, updateUserDeployerNftInfo } from "state/indexes";
 import { useIndexes } from "state/indexes/hooks";
@@ -70,7 +70,7 @@ const StakeIndexOwnershipNFT = ({ open, setOpen, data }: { open: boolean; setOpe
       toast.success("Deployer NFT was unstaked");
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -91,7 +91,12 @@ const StakeIndexOwnershipNFT = ({ open, setOpen, data }: { open: boolean; setOpe
         await onApprove(selectedIndex.address);
       }
 
-      const indexContract = getIndexContract(selectedIndex.chainId, selectedIndex.address, selectedIndex.version, signer);
+      const indexContract = getIndexContract(
+        selectedIndex.chainId,
+        selectedIndex.address,
+        selectedIndex.version,
+        signer
+      );
       const gasPrice = await getNetworkGasPrice(signer, chainId);
 
       let gasLimit = await indexContract.estimateGas.stakeDeployerNft({ value: selectedIndex.performanceFee ?? "0" });
@@ -114,7 +119,7 @@ const StakeIndexOwnershipNFT = ({ open, setOpen, data }: { open: boolean; setOpe
       setOpen(false);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };

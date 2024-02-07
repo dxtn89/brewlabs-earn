@@ -44,7 +44,7 @@ import { useFetchTokenBalance } from "state/wallet/hooks";
 import { useSigner } from "utils/wagmi";
 
 import "animate.css";
-import "../styles/globals.css";
+import "../styles/global.css";
 import "../styles/animations.scss";
 import "../styles/Toast.custom.scss";
 import SEO from "../../next-seo.config.mjs";
@@ -170,7 +170,7 @@ function MyApp(props: AppProps<{ initialReduxState: any }>) {
                                   </Suspense>
 
                                   <img
-                                    className="fixed -right-44 top-0 hidden home:z-10 dark:opacity-50 sm:block"
+                                    className="home:z-10 fixed -right-44 top-0 hidden dark:opacity-50 sm:block"
                                     src="/images/blur-indigo.png"
                                     alt=""
                                     width={567}

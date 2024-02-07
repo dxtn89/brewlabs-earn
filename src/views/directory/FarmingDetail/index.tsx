@@ -19,7 +19,7 @@ import { DashboardContext } from "contexts/DashboardContext";
 import { useActiveChainId } from "hooks/useActiveChainId";
 import { useSwitchNetwork } from "hooks/useSwitchNetwork";
 import useTokenPrice, { useTokenPrices } from "hooks/useTokenPrice";
-import { getExplorerLink, getNativeSybmol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
+import { getExplorerLink, getNativeSymbol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { fetchFarmUserDataAsync, setFarmsPublicData, setFarmUserData } from "state/farms";
 import { fetchFarmUserDeposits } from "state/farms/fetchFarmUser";
@@ -162,7 +162,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
       dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -178,7 +178,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
       dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -194,7 +194,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
       dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -210,7 +210,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
       dispatch(fetchFarmUserDataAsync({ account: address, chainId: data.chainId, pids: [data.pid] }));
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -412,7 +412,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
                         </div>
                         <br />
                         Peformance Fee {data.performanceFee ? data.performanceFee / Math.pow(10, 18) : "0.00"}{" "}
-                        {getNativeSybmol(data.chainId)}
+                        {getNativeSymbol(data.chainId)}
                         <div
                           className="tooltip"
                           data-tip="Performance fee is charged per transaction to the Brewlabs Treasury (Brewlabs holders)."
@@ -562,7 +562,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
                           ? ""
                           : curGraph !== 2
                           ? data.lpSymbol.split(" ")[0]
-                          : getNativeSybmol(data.chainId)
+                          : getNativeSymbol(data.chainId)
                       }
                       price={curGraph === 3 ? 1 : curGraph !== 2 ? lpPrice : nativeTokenPrice}
                       curGraph={curGraph}
@@ -599,7 +599,7 @@ const FarmingDetail = ({ detailDatas }: { detailDatas: any }) => {
                         )}
                         &nbsp;
                         <span className={`${curGraph === 2 ? "text-black" : "text-primary"}`}>
-                          {getNativeSybmol(data.chainId)}
+                          {getNativeSymbol(data.chainId)}
                         </span>
                       </div>
                     </div>

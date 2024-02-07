@@ -19,7 +19,7 @@ import { DashboardContext } from "contexts/DashboardContext";
 import { useActiveChainId } from "hooks/useActiveChainId";
 import { useSwitchNetwork } from "hooks/useSwitchNetwork";
 import useTokenPrice, { useTokenPrices } from "hooks/useTokenPrice";
-import { getExplorerLink, getNativeSybmol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
+import { getExplorerLink, getNativeSymbol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { useChainCurrentBlock } from "state/block/hooks";
 import {
@@ -179,7 +179,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -194,7 +194,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -209,7 +209,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -224,7 +224,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -471,7 +471,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
                               <SkeletonComponent />
                             </div>
                           )}{" "}
-                          {getNativeSybmol(data.chainId)}&nbsp;
+                          {getNativeSymbol(data.chainId)}&nbsp;
                           <div
                             className="tooltip"
                             data-tip="Performance fee is charged per transaction to the Brewlabs Treasury (Brewlabs holders)."
@@ -585,7 +585,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
                     <TotalStakedChart
                       data={graphData()}
                       symbol={
-                        curGraph === 4 ? "" : curGraph !== 3 ? data.stakingToken.symbol : getNativeSybmol(data.chainId)
+                        curGraph === 4 ? "" : curGraph !== 3 ? data.stakingToken.symbol : getNativeSymbol(data.chainId)
                       }
                       price={curGraph === 4 ? 1 : curGraph !== 3 ? tokenPrice : nativeTokenPrice}
                       curGraph={curGraph}
@@ -645,7 +645,7 @@ const StakingDetail = ({ detailDatas }: { detailDatas: any }) => {
                         )}
                         &nbsp;
                         <span className={`${curGraph === 3 ? "text-black" : "text-primary"}`}>
-                          {getNativeSybmol(data.chainId)}
+                          {getNativeSymbol(data.chainId)}
                         </span>
                       </div>
                     </div>

@@ -1,7 +1,7 @@
 import { ChainId, Currency, NATIVE_CURRENCIES, Token, WNATIVE } from "@brewlabs/sdk";
 import { ethers } from "ethers";
 import { CHAIN_ICONS, EMPTY_TOKEN_LOGO, EXPLORER_LOGO, EXPLORER_NAMES, EXPLORER_URLS } from "config/constants/networks";
-import { getNativeSybmol } from "lib/bridge/helpers";
+import { getNativeSymbol } from "lib/bridge/helpers";
 import { DEX_LOGOS } from "config/constants/swap";
 import { toast } from "react-toastify";
 import { isAddress } from "utils";
@@ -92,7 +92,7 @@ export const getDexLogo = (exchange) => DEX_LOGOS[exchange];
 export const getIndexName = (tokens) => {
   // if (tokens.length === 2)
   return tokens
-    .map((t) => t.symbol.replace(WNATIVE[t.chainId].symbol, getNativeSybmol(t.chainId)).toUpperCase())
+    .map((t) => t.symbol.replace(WNATIVE[t.chainId].symbol, getNativeSymbol(t.chainId)).toUpperCase())
     .join("-");
   // return tokens
   // .map((t, index) => (index > 0 ? t.symbol.substring(0, 1) : t.symbol.replace("WBNB", "BNB").replace("WETH", "ETH")))
@@ -112,18 +112,18 @@ export const formatIPFSString = (url) => {
 export const getAddLiquidityUrl = (dexId: string, token1: Currency, token2: Currency, chainId: number) => {
   if (!token1 || !token2) return "#";
   return `/add/${chainId}/${dexId}/${
-    token1.isNative || token1.symbol === WNATIVE[chainId].symbol ? getNativeSybmol(chainId) : isAddress(token1.address)
+    token1.isNative || token1.symbol === WNATIVE[chainId].symbol ? getNativeSymbol(chainId) : isAddress(token1.address)
   }/${
-    token2.isNative || token2.symbol === WNATIVE[chainId].symbol ? getNativeSybmol(chainId) : isAddress(token2.address)
+    token2.isNative || token2.symbol === WNATIVE[chainId].symbol ? getNativeSymbol(chainId) : isAddress(token2.address)
   }`;
 };
 
 export const getRemoveLiquidityUrl = (dexId: string, token1: Currency, token2: Currency, chainId: number) => {
   if (!token1 || !token2) return "#";
   return `/remove/${chainId}/${dexId}/${
-    token1.isNative || token1.symbol === WNATIVE[chainId].symbol ? getNativeSybmol(chainId) : isAddress(token1.address)
+    token1.isNative || token1.symbol === WNATIVE[chainId].symbol ? getNativeSymbol(chainId) : isAddress(token1.address)
   }/${
-    token2.isNative || token2.symbol === WNATIVE[chainId].symbol ? getNativeSybmol(chainId) : isAddress(token2.address)
+    token2.isNative || token2.symbol === WNATIVE[chainId].symbol ? getNativeSymbol(chainId) : isAddress(token2.address)
   }`;
 };
 

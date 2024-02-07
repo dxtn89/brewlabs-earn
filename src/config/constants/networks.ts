@@ -182,7 +182,7 @@ export const NETWORKS = {
     },
     rpcUrls: [
       "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-      "https://eth.llamarpc.com",
+      // "https://eth.llamarpc.com",
       "https://ethereum.publicnode.com",
       "https://eth.meowrpc.com",
     ],

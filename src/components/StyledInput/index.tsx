@@ -43,7 +43,7 @@ const StyledInput = ({
           inputMode="decimal"
           placeholder={placeholder || "0.00"}
           pattern={`^[0-9]*[.,]?[0-9]{0,18}$`}
-          className={`${className} primary-shadow focusShadow relative z-10 h-10 rounded border-none bg-[#B9B8B81A] p-[16px_14px] text-sm text-white outline-none`}
+          className={`${className} relative z-10 h-10 rounded border-none bg-zinc-800/80 px-4 py-3 text-sm text-white outline-none`}
           maxLength={79}
           onClick={onClick}
         />
@@ -53,7 +53,7 @@ const StyledInput = ({
           value={value}
           placeholder={placeholder}
           onChange={(e) => setValue(e.target.value)}
-          className={`${className} primary-shadow focusShadow relative z-10 h-10 rounded border-none bg-[#B9B8B81A] p-[16px_14px] text-sm text-white outline-none`}
+          className={`${className} relative z-10 h-10 rounded border-none bg-zinc-800/80 px-4 py-3 text-sm text-white outline-none ring-1 ring-zinc-600/70 focus:ring-yellow-300/70`}
           onClick={onClick}
         />
       ) : (
@@ -61,7 +61,7 @@ const StyledInput = ({
           value={value}
           placeholder={placeholder}
           onChange={(e) => setValue(e.target.value)}
-          className={`${className} primary-shadow focusShadow relative z-10 h-10 rounded border-none bg-[#B9B8B81A] p-[16px_14px] text-sm text-white outline-none`}
+          className={`${className} relative z-10 h-10 rounded border-none bg-zinc-800/80 px-4 py-3 text-sm text-white outline-none`}
           onClick={onClick}
         />
       )}

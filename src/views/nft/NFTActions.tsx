@@ -19,7 +19,7 @@ import { NFT_RARITY_NAME, rarities } from "config/constants/nft";
 import { DashboardContext } from "contexts/DashboardContext";
 import useActiveWeb3React from "@hooks/useActiveWeb3React";
 import { useTokenApprove } from "@hooks/useApprove";
-import { getNativeSybmol, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { fetchFlaskNftUserDataAsync } from "state/nfts";
 import { useFlaskNftData } from "state/nfts/hooks";
@@ -75,7 +75,7 @@ const NFTActions = () => {
       toast.success("Brewlabs was approved");
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(chainId));
+      handleWalletError(error, showError, getNativeSymbol(chainId));
     }
     setPending(false);
   };
@@ -250,11 +250,11 @@ const NFTActions = () => {
                       return (
                         <div className="relative" key={i}>
                           <StyledButton
-                            className="!w-fit p-[5px_12px] !text-xs !font-normal enabled:hover:!opacity-100 disabled:!bg-[#202023] disabled:!text-[#FFFFFF80] [&>*:first-child]:enabled:hover:animate-[rightBounce_0.8s_infinite] [&>*:first-child]:enabled:hover:text-yellow"
+                            className="[&>*:first-child]:enabled:hover:text-yellow !w-fit p-[5px_12px] !text-xs !font-normal enabled:hover:!opacity-100 disabled:!bg-[#202023] disabled:!text-[#FFFFFF80] [&>*:first-child]:enabled:hover:animate-[rightBounce_0.8s_infinite]"
                             disabled={!data.active}
                             onClick={() => data.action()}
                           >
-                            <div className="absolute -right-3.5 animate-none text-tailwind transition-all duration-500 [&>*:first-child]:!h-5 [&>*:first-child]:!w-5 [&>*:first-child]:!opacity-100">
+                            <div className="text-tailwind absolute -right-3.5 animate-none transition-all duration-500 [&>*:first-child]:!h-5 [&>*:first-child]:!w-5 [&>*:first-child]:!opacity-100">
                               {data.info ? InfoSVG : CircleRightSVG}
                             </div>
                             {data.text}

@@ -1,4 +1,4 @@
-import styles from "./Bubbles.module.scss";
+import styles from "./Bubbles.module.scss"
 
 const x = Array.from(Array(60).keys());
 

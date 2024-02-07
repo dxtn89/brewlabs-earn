@@ -4,7 +4,7 @@ import { PoolCategory } from "config/constants/types";
 import { upSVG } from "components/dashboard/assets/svgs";
 import LogoIcon from "components/LogoIcon";
 import { SkeletonComponent } from "components/SkeletonComponent";
-import { getNativeSybmol } from "lib/bridge/helpers";
+import { getNativeSymbol } from "lib/bridge/helpers";
 import StyledButton from "../StyledButton";
 import { BASE_URL } from "config";
 import Link from "next/link";
@@ -69,7 +69,7 @@ const CorePool = ({
               <div className="flex">
                 <span className="mr-1">Performance Fee</span>
                 {data ? (
-                  `${data.performanceFee / Math.pow(10, 18)} ${getNativeSybmol(data.chainId)}`
+                  `${data.performanceFee / Math.pow(10, 18)} ${getNativeSymbol(data.chainId)}`
                 ) : (
                   <SkeletonComponent />
                 )}

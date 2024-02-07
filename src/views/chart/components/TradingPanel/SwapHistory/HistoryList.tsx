@@ -4,7 +4,7 @@ import TimeAgo from "javascript-time-ago";
 
 // English.
 import en from "javascript-time-ago/locale/en";
-import { getNativeSybmol } from "lib/bridge/helpers";
+import { getNativeSymbol } from "lib/bridge/helpers";
 import { Oval } from "react-loader-spinner";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WNATIVE } from "@brewlabs/sdk";
@@ -92,7 +92,7 @@ export default function HistoryList({
         </div>
         <div className="flex">
           <div className="w-20 overflow-hidden text-ellipsis">{selectedPair.baseToken.symbol}</div>
-          <div className="w-14 ">{getNativeSybmol(selectedPair.chainId)}</div>
+          <div className="w-14 ">{getNativeSymbol(selectedPair.chainId)}</div>
           <div className="w-20">USD</div>
         </div>
       </div>

@@ -1,0 +1,248 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+  display: none !important;
+}
+html.dark a,
+html.dark p,
+html.dark h3 {
+  color: #d1d5db; /* gray-300 */
+}
+
+.wave1 use {
+  animation: move-forever1 20s linear infinite;
+  animation-delay: -2s;
+}
+
+.wave2 use {
+  animation: move-forever2 16s linear infinite;
+  animation-delay: -2s;
+}
+
+.wave3 use {
+  animation: move-forever3 12s linear infinite;
+  animation-delay: -2s;
+}
+
+@keyframes move-forever1 {
+  0% {
+    transform: translate(85px, 0%);
+  }
+  100% {
+    transform: translate(-90px, 0%);
+  }
+}
+
+@keyframes move-forever2 {
+  0% {
+    transform: translate(-90px, 0%);
+  }
+  100% {
+    transform: translate(85px, 0%);
+  }
+}
+
+@keyframes move-forever3 {
+  0% {
+    transform: translate(-90px, 0%);
+  }
+  100% {
+    transform: translate(85px, 0%);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.shadow-right {
+  box-shadow: 15px 0 15px -5px rgba(0, 0, 0, 0.85);
+}
+
+.max-w-md {
+  max-width: 30rem;
+}
+
+.btn-protocol-shadow {
+  box-shadow: 0px 4px 4px 0px rgb(0 0 0 / 25%);
+}
+.staking-button-shadow {
+  box-shadow: 0px 0px 3px #eebb19;
+}
+
+.feature-shadow {
+  box-shadow: 0px 1.5px 4px rgba(0, 0, 0, 0.5);
+}
+.primary-shadow {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.react-tooltip {
+  z-index: 100;
+  font-size: 13px;
+  line-height: 125%;
+  opacity: 1;
+  max-width: 320px;
+  text-align: center;
+}
+
+.yellowScroll::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+  display: block !important;
+}
+.yellowScroll::-webkit-scrollbar-thumb:vertical {
+  border: 6px solid rgba(0, 0, 0, 0);
+  background-clip: padding-box;
+  border-radius: 9999px;
+  background-color: #eebb19;
+}
+
+.greyScroll::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+  display: block !important;
+}
+.greyScroll::-webkit-scrollbar-thumb:vertical {
+  border: 6px solid rgba(0, 0, 0, 0);
+  background-clip: padding-box;
+  border-radius: 9999px;
+  background-color: #444341;
+}
+
+.bounce-animation {
+  animation: rightBounce 0.8s infinite;
+}
+
+@keyframes rightBounce {
+  0%,
+  to {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  50% {
+    transform: translateX(20%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+}
+
+.focusShadow:focus {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 20%;
+  }
+}
+
+.animate-flicker {
+  animation: fadeIn 1s infinite alternate;
+}
+
+.switch-name:hover > div > div:nth-child(2) {
+  opacity: 1;
+}
+.switch-name:hover > div > div:nth-child(1) {
+  opacity: 0;
+}
+
+.animate-bounce {
+  animation: bounce 0.4s;
+}
+@keyframes bounce {
+  0%,
+  to {
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  50% {
+    opacity: 0.1;
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+}
+
+ 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+ 
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+ 
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+ 
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+ 
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 240 10% 10%;
+    --foreground: 0 0% 98%;
+ 
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+ 
+    --popover: 240 10% 10%;
+    --popover-foreground: 0 0% 98%;
+ 
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+ 
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+ 
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+ 
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+ 
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 25.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

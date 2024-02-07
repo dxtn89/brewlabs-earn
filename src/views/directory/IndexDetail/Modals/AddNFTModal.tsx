@@ -13,7 +13,7 @@ import { checkSVG, chevronLeftSVG } from "components/dashboard/assets/svgs";
 import LogoIcon from "components/LogoIcon";
 import TokenLogo from "@components/logo/TokenLogo";
 import { DashboardContext } from "contexts/DashboardContext";
-import { getNativeSybmol, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { updateNftAllowance } from "state/indexes";
 import { DeserializedIndex } from "state/indexes/types";
@@ -60,7 +60,7 @@ const AddNFTModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; dat
       toast.success(`Approved NFT staking`);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -78,7 +78,7 @@ const AddNFTModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; dat
       setOpen(false);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };

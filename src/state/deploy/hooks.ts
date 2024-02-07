@@ -19,7 +19,7 @@ export const usePollTokenFactoryData = () => {
 
   useEffect(() => {
     supportedChains.forEach((chainId) => dispatch(fetchTokenFactoryDataAsync(chainId)));
-  }, [dispatch]);
+  }, [dispatch, supportedChains]);
 };
 
 export const usePollFarmFactoryData = () => {
@@ -33,7 +33,7 @@ export const usePollFarmFactoryData = () => {
 
   useEffect(() => {
     supportedChains.forEach((chainId) => dispatch(fetchFarmFactoryDataAsync(chainId)));
-  }, [dispatch]);
+  }, [dispatch, supportedChains]);
 };
 
 export const usePollIndexFactoryData = () => {
@@ -47,7 +47,7 @@ export const usePollIndexFactoryData = () => {
 
   useEffect(() => {
     supportedChains.forEach((chainId) => dispatch(fetchIndexFactoryDataAsync(chainId)));
-  }, [dispatch]);
+  }, [dispatch, supportedChains]);
 };
 
 export const useFarmFactory = (chainId) =>

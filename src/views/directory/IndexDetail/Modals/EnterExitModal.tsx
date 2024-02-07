@@ -16,7 +16,7 @@ import TokenLogo from "@components/logo/TokenLogo";
 
 import { DashboardContext } from "contexts/DashboardContext";
 import useTokenPrice from "hooks/useTokenPrice";
-import { getNativeSybmol, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, handleWalletError } from "lib/bridge/helpers";
 import { DeserializedIndex } from "state/indexes/types";
 import { formatAmount } from "utils/formatApy";
 import { getIndexName, numberWithCommas } from "utils/functions";
@@ -133,7 +133,7 @@ const EnterExitModal = ({
 
   const renderProfit = () => {
     let profit = 0;
-    if (!priceHistories?.length) return <span className="mx-1 text-green">$0.00</span>;
+    if (!priceHistories?.length) return <span className="text-green mx-1">$0.00</span>;
 
     for (let k = 0; k < data.numTokens; k++) {
       profit += +stakedBalances[k] * priceHistories[k][priceHistories[k].length - 1];
@@ -170,7 +170,7 @@ const EnterExitModal = ({
       setOpen(false);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -189,7 +189,7 @@ const EnterExitModal = ({
       setOpen(false);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setZapout(false);
     setPending(false);
@@ -208,7 +208,7 @@ const EnterExitModal = ({
       setOpen(false);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -263,7 +263,7 @@ const EnterExitModal = ({
                 <>
                   <div className="mt-[30px]">
                     <StyledInput
-                      placeholder={`Enter amount ${getNativeSybmol(data.chainId)}...`}
+                      placeholder={`Enter amount ${getNativeSymbol(data.chainId)}...`}
                       value={amount}
                       onChange={(e) => {
                         if ((isNaN(+e.target.value) || !e.target.value) && e.target.value !== "") return;
@@ -301,7 +301,7 @@ const EnterExitModal = ({
                       </div>
                     </div>
                     <div className="text-[#FFFFFFBF]">
-                      My {getNativeSybmol(data.chainId)} <span className="text-yellow">:</span>{" "}
+                      My {getNativeSymbol(data.chainId)} <span className="text-yellow">:</span>{" "}
                       {Number(ethbalance).toFixed(2)}
                     </div>
                   </div>

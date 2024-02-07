@@ -12,7 +12,7 @@ import { SkeletonComponent } from "components/SkeletonComponent";
 import { PoolCategory } from "config/constants/types";
 import { DashboardContext } from "contexts/DashboardContext";
 import useTokenPrice from "hooks/useTokenPrice";
-import { getNativeSybmol, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, handleWalletError } from "lib/bridge/helpers";
 import { BIG_ZERO } from "utils/bigNumber";
 import { formatAmount } from "utils/formatApy";
 import { getBalanceNumber } from "utils/formatBalance";
@@ -76,7 +76,7 @@ const EmergencyModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -91,7 +91,7 @@ const EmergencyModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -106,7 +106,7 @@ const EmergencyModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
       }
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(data.chainId));
+      handleWalletError(error, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -228,7 +228,7 @@ const EmergencyModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="absolute -top-2 -right-2 rounded-full bg-white p-2 dark:bg-zinc-900 sm:dark:bg-zinc-800"
+                className="absolute -right-2 -top-2 rounded-full bg-white p-2 dark:bg-zinc-900 sm:dark:bg-zinc-800"
               >
                 <span className="sr-only">Close</span>
                 <XMarkIcon className="h-6 w-6 dark:text-slate-400" />

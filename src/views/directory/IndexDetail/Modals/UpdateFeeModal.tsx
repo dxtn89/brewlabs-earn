@@ -11,7 +11,7 @@ import styled from "styled-components";
 import { chevronLeftSVG, warningCircleSVG } from "components/dashboard/assets/svgs";
 import LogoIcon from "components/LogoIcon";
 import { DashboardContext } from "contexts/DashboardContext";
-import { getNativeSybmol, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { setIndexesPublicData } from "state/indexes";
 import { DeserializedIndex } from "state/indexes/types";
@@ -48,7 +48,7 @@ const UpdateFeeModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
       setOpen(false);
     } catch (e) {
       console.log(e);
-      handleWalletError(e, showError, getNativeSybmol(data.chainId));
+      handleWalletError(e, showError, getNativeSymbol(data.chainId));
     }
     setPending(false);
   };
@@ -114,7 +114,7 @@ const UpdateFeeModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
                       className="tooltip"
                       data-tip="Fee percentage charged to users on deposit sent to your nominated address."
                     >
-                      <div className="mr-2 scale-125 cursor-pointer text-tailwind">{warningCircleSVG}</div>
+                      <div className="text-tailwind mr-2 scale-125 cursor-pointer">{warningCircleSVG}</div>
                     </div>
                     <div>Deposit Fee {data.depositFee ?? 0.25}%</div>
                   </div>
@@ -123,7 +123,7 @@ const UpdateFeeModal = ({ open, setOpen, data }: { open: boolean; setOpen: any; 
                       className="tooltip"
                       data-tip="Fee percentage charged to users on withdrawal in profit sent to your nominated address."
                     >
-                      <div className="mr-2 scale-125 cursor-pointer text-tailwind">{warningCircleSVG}</div>
+                      <div className="text-tailwind mr-2 scale-125 cursor-pointer">{warningCircleSVG}</div>
                     </div>
                     <div>Commission Fee {data.commissionFee ?? 1}%</div>
                   </div>

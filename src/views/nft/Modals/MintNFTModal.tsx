@@ -27,7 +27,7 @@ import { rarities } from "config/constants/nft";
 import { DashboardContext } from "contexts/DashboardContext";
 import useActiveWeb3React from "@hooks/useActiveWeb3React";
 import { useTokenApprove } from "@hooks/useApprove";
-import { getNativeSybmol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
+import { getNativeSymbol, getNetworkLabel, handleWalletError } from "lib/bridge/helpers";
 import { useAppDispatch } from "state";
 import { fetchFlaskNftUserDataAsync } from "state/nfts";
 import { useFlaskNftData } from "state/nfts/hooks";
@@ -108,7 +108,7 @@ const MintNFTModal = ({ open, setOpen }) => {
       toast.success(`${selectedCurrency.symbol} was approved`);
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(chainId));
+      handleWalletError(error, showError, getNativeSymbol(chainId));
     }
     setPending(false);
   };
@@ -125,7 +125,7 @@ const MintNFTModal = ({ open, setOpen }) => {
       toast.success(`BREWLABS was approved`);
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(chainId));
+      handleWalletError(error, showError, getNativeSymbol(chainId));
     }
     setPending(false);
   };
@@ -158,7 +158,7 @@ const MintNFTModal = ({ open, setOpen }) => {
       setIsMinted(true);
     } catch (error) {
       console.log(error);
-      handleWalletError(error, showError, getNativeSybmol(chainId));
+      handleWalletError(error, showError, getNativeSymbol(chainId));
     }
     setPending(false);
   };
@@ -288,7 +288,7 @@ const MintNFTModal = ({ open, setOpen }) => {
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="mt-2.5 flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded bg-[#B9B8B80D] text-tailwind">
+              <div className="text-tailwind mt-2.5 flex h-[200px] w-[200px] items-center justify-center overflow-hidden rounded bg-[#B9B8B80D]">
                 {isMinted && rarities[mintedTokenIds[curAnimation] - 1]?.mintLogo ? (
                   <ReactPlayer
                     className="!h-full !w-full"
@@ -372,13 +372,13 @@ const MintNFTModal = ({ open, setOpen }) => {
                     <div>{quantity}</div>
                     <div className="flex w-[110px] justify-between">
                       <div
-                        className="primary-shadow flex h-10 w-10 cursor-pointer items-center justify-center rounded text-tailwind transition-all hover:bg-[#292929] hover:text-white"
+                        className="primary-shadow text-tailwind flex h-10 w-10 cursor-pointer items-center justify-center rounded transition-all hover:bg-[#292929] hover:text-white"
                         onClick={() => setQuantity(quantity + 1)}
                       >
                         {PlusSVG}
                       </div>
                       <div
-                        className="primary-shadow flex h-10 w-10 cursor-pointer items-center justify-center rounded text-tailwind transition-all hover:bg-[#292929] hover:text-white"
+                        className="primary-shadow text-tailwind flex h-10 w-10 cursor-pointer items-center justify-center rounded transition-all hover:bg-[#292929] hover:text-white"
                         onClick={() => setQuantity(Math.max(quantity - 1, 1))}
                       >
                         {MinusSVG}
