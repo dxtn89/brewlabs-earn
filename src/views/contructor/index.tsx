@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { Cog8ToothIcon } from "@heroicons/react/24/outline";
-
+import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import { SwapContext } from "contexts/SwapContext";
 import PageHeader from "components/layout/PageHeader";
 import Container from "components/layout/Container";
@@ -60,13 +60,27 @@ export default function Constructor() {
       <PageHeader
         title={
           <>
-            Manage your liquidity with the <WordHighlight content="Brewlabs" /> Constructor.
-            <div className="whitespace-wrap mt-5 text-xl font-normal sm:whitespace-nowrap">
-              Add or remove liquidity from a number of routers free from any token tax fees.
-            </div>
+            Manage various <WordHighlight content="liquidity" /> positions with the Brewlabs Constructor.
           </>
         }
-      />
+        summary={
+          <>
+            Brewlabs consturctor allows users to manage liquidity positions from various decentralised exchanges.
+            The constructor convienetanly collates all liquidity pool tokens held in your connected wallet. Make 
+            and unmake liquidity pool tokens with the construtor tool.
+          </>
+        }
+      >
+        <a
+          className="btn mt-4"
+          target="_blank"
+          href="https://brewlabs.gitbook.io/welcome-to-brewlabs/brewlabs-defi-products/brewlabs-2022/live-brewlabs-farms-and-vaults"
+        >
+          <DocumentTextIcon className="h-auto w-6" />
+          Learn more
+        </a>
+      </PageHeader>
+
       <Container className="overflow-hidden font-brand">
         <div className="relative mx-auto mb-4 flex w-fit min-w-[90%] max-w-[660px] flex-col gap-1 rounded-3xl border-t px-4 pb-10 pt-4 dark:border-slate-600 dark:bg-zinc-900 sm:min-w-[540px] sm:px-10 md:mx-0">
           <div className="mt-2 text-2xl text-white">Liquidity Constructor</div>

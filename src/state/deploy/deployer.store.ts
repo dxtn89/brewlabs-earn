@@ -3,15 +3,17 @@ import { tokenDeployerSchema } from "config/schemas/tokenDeployerSchema";
 import { createGlobalState } from "react-hooks-global-state";
 
 interface DeployerStore {
-  deployNetwork: number;
-  deployerStep: "details" | "confirm" | "deploy" | "success" | "error" | "loading";
+  deployedAddress: string;
+  tokenImageDisplayUrl: string;
+  deployerStep: "details" | "confirm" | "success";
   tokenInfo: z.infer<typeof tokenDeployerSchema>;
 }
 
 // Create a single global state object
 const deployerStore = {
-  deployNetwork: 1,
+  deployedAddress: "",
   deployerStep: "details",
+  tokenImageDisplayUrl: "",
   tokenInfo: {
     tokenName: "",
     tokenSymbol: "",
@@ -19,6 +21,10 @@ const deployerStore = {
     tokenDecimals: 18,
     tokenTotalSupply: 0,
     tokenDescription: "",
+    tokenImmutable: false,
+    tokenRevokeFreeze: false,
+    tokenRevokeMint: false,
+    tokenBurnPercentage: "0",
   },
 } as DeployerStore;
 
@@ -30,6 +36,14 @@ export const setTokenInfo = (tokenInfo: z.infer<typeof tokenDeployerSchema>) => 
 
 export const setDeployerStep = (step: DeployerStore["deployerStep"]) => {
   setGlobalState("deployerStep", () => step);
+};
+
+export const setDeployedAddress = (deployedAddress: string) => {
+  setGlobalState("deployedAddress", () => deployedAddress);
+};
+
+export const setTokenImageDisplayUrl = (tokenImageDisplayUrl: string) => {
+  setGlobalState("tokenImageDisplayUrl", () => tokenImageDisplayUrl);
 };
 
 export { useDeployerState };

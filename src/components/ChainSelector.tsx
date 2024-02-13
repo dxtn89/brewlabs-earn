@@ -56,7 +56,7 @@ const ChainSelector = ({ networks, bSwitchChain, currentChainId, selectFn, onDis
       {errorMsg && bSwitchChain && (
         <div className="relative mt-2 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700" role="alert">
           <strong className="font-bold">{errorMsg}</strong>
-          <span className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setErrorMsg("")}>
+          <span className="absolute bottom-0 right-0 top-0 px-4 py-3" onClick={() => setErrorMsg("")}>
             <svg
               className="h-6 w-6 fill-current text-red-500"
               role="button"
@@ -90,12 +90,14 @@ const ChainSelector = ({ networks, bSwitchChain, currentChainId, selectFn, onDis
                 <p className="text-sm font-medium text-gray-900">{network.name}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-500">
                   Current price: {` $`}
-                  {tokenPrices[
-                    getCurrencyId(
-                      network.id,
-                      NATIVE_CURRENCIES[network.id === 0 ? ChainId.BSC_MAINNET : network.id].wrapped.address
-                    )
-                  ]?.toFixed(5) ?? "0.000"}
+                  {network.id == (900 as ChainId) || network.id == (901 as ChainId)
+                    ? "Solana token value"
+                    : tokenPrices[
+                        getCurrencyId(
+                          network.id,
+                          NATIVE_CURRENCIES[network.id === 0 ? ChainId.BSC_MAINNET : network.id].wrapped.address
+                        )
+                      ]?.toFixed(5) ?? "0.000"}
                 </p>
               </div>
 

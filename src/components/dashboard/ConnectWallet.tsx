@@ -83,7 +83,7 @@ const ConnectWallet = ({ allowDisconnect }: ConnectWalletProps) => {
                 if (supportedNetworks.length > 1 && !allowDisconnect) {
                   e.stopPropagation();
                   setOpenSwitchNetworkModal(true);
-                  // open({view: "Networks"})
+                  // open({ view: "Networks" });
                 }
               }}
               className="rounded-full border-2"

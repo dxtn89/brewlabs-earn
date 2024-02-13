@@ -12,6 +12,8 @@ import { fetchFlaskNftPublicData, fetchFlaskNftUserData } from "./fetchFlaskNft"
 import { fetchNftStakingPublicData, fetchNftStakingUserData } from "./fetchNftStaking";
 import { fetchMirrorNftUserData } from "./fetchMirrorNft";
 
+import type { AugmentedChainId } from "config/constants/networks";
+
 const initialState: NftState = {
   flaskNft: Object.keys(contracts.flaskNft)
     .filter((chainId) => PAGE_SUPPORTED_CHAINS.nft.includes(+chainId))
@@ -46,7 +48,7 @@ const initialState: NftState = {
   userDataLoaded: false,
 };
 
-export const fetchNftPublicDataAsync = (chainId: ChainId) => async (dispatch) => {
+export const fetchNftPublicDataAsync = (chainId: AugmentedChainId) => async (dispatch) => {
   const flaskData = await fetchFlaskNftPublicData(chainId);
   dispatch(setNftPublicData({ type: "flaskNft", data: flaskData }));
 
@@ -56,9 +58,9 @@ export const fetchNftPublicDataAsync = (chainId: ChainId) => async (dispatch) =>
   }
 };
 
-export const fetchNftUserDataAsync = (chainId: ChainId, account: string) => async (dispatch, getState) => {
+export const fetchNftUserDataAsync = (chainId: AugmentedChainId, account: string) => async (dispatch, getState) => {
   const config = getState().nfts.flaskNft.find((p) => p.chainId === chainId);
-  if(!config) return
+  if (!config) return;
 
   const flaskData = await fetchFlaskNftUserData(chainId, account, [
     config.brewsToken.address,

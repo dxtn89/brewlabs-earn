@@ -1,10 +1,39 @@
 import { ChainId } from "@brewlabs/sdk";
 import { bsc, mainnet, arbitrum, polygon, avalanche, fantom, cronos, brise, bscTestnet, goerli } from "contexts/wagmi";
 
+// Extend ChainId enum with new chain ids
+enum ExtendedChainId {
+  ETHEREUM = 1,
+  BSC_MAINNET = 56,
+  FANTOM = 250,
+  POLYGON = 137,
+  AVALANCHE = 43114,
+  CRONOS = 25,
+  BRISE = 32520,
+  ARBITRUM = 42161,
+  BASE = 8453,
+  GOERLI = 5,
+  BSC_TESTNET = 97,
+  // Add Solana chain id for deployer
+  SOLANA_MAINNET = 900,
+  SOLANA_DEVNET = 901,
+}
+
+// Augment ChainId type to include the new extended values
+export type AugmentedChainId = ChainId | ExtendedChainId;
+
 export const SupportedChains = [bsc, mainnet, arbitrum, polygon, avalanche, fantom, cronos, brise, bscTestnet, goerli];
 
-export const SUPPORTED_CHAIN_IDS = SupportedChains.map((chain) => chain.id);
-export const PAGE_SUPPORTED_CHAINS: { [key: string]: ChainId[] } = {
+const customChainIds = [900, 901]; // New custom chain IDs to be added
+
+export const SUPPORTED_CHAIN_IDS = [
+  ...SupportedChains.map((chain) => chain.id),
+  ...customChainIds, // Append the custom chain IDs to the array
+];
+// export const SUPPORTED_CHAIN_IDS = SupportedChains.map((chain) => chain.id);
+
+export const PAGE_SUPPORTED_CHAINS: { [key: string]: AugmentedChainId[] } = {
+  // export const PAGE_SUPPORTED_CHAINS: { [key: string]: ChainId[] } = {
   chart: [ChainId.ETHEREUM, ChainId.BSC_MAINNET],
   farms: [
     ChainId.ETHEREUM,
@@ -14,6 +43,7 @@ export const PAGE_SUPPORTED_CHAINS: { [key: string]: ChainId[] } = {
     ChainId.AVALANCHE,
     ChainId.CRONOS,
     ChainId.BRISE,
+    ChainId.ARBITRUM,
   ],
   staking: [
     ChainId.ETHEREUM,
@@ -25,7 +55,14 @@ export const PAGE_SUPPORTED_CHAINS: { [key: string]: ChainId[] } = {
     ChainId.BRISE,
   ],
   indexes: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON],
-  deployer: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.ARBITRUM],
+  deployer: [
+    ChainId.ETHEREUM,
+    ChainId.BSC_MAINNET,
+    ChainId.POLYGON,
+    ChainId.ARBITRUM,
+    ExtendedChainId.SOLANA_MAINNET,
+    ExtendedChainId.SOLANA_DEVNET,
+  ],
   swap: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.ARBITRUM, ChainId.POLYGON, ChainId.FANTOM, ChainId.BSC_TESTNET],
   add: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.BSC_TESTNET],
   remove: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.BSC_TESTNET],
@@ -102,6 +139,9 @@ export const CHAIN_LABLES = {
 
   [ChainId.GOERLI]: "Goerli",
   [ChainId.BSC_TESTNET]: "BSC Testnet",
+
+  900: "Solana",
+  901: "Solana Devnet",
 };
 
 export const CHAIN_ICONS = {
@@ -118,6 +158,9 @@ export const CHAIN_ICONS = {
   [ChainId.BSC_TESTNET]: "/images/networks/bsc.png",
   8453: "/images/networks/base.png",
   324: "/images/networks/zksync.png",
+
+  900: "/images/networks/Solana_logo.png",
+  901: "/images/networks/solana.png",
 };
 
 export const EXPLORER_LOGO = {

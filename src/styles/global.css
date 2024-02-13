@@ -9,8 +9,8 @@
   height: 16px;
   display: none !important;
 }
+
 html.dark a,
-html.dark p,
 html.dark h3 {
   color: #d1d5db; /* gray-300 */
 }
@@ -245,4 +245,12 @@ html.dark h3 {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.wallet-adapter-dropdown-list, .wallet-adapter-dropdown-list-active {
+  transform: translateY(-220px) !important;
+}
+
+.wallet-adapter-button {
+  height: 40px !important
 }

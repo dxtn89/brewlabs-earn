@@ -30,49 +30,56 @@ const Deploy = ({ values }) => {
   const { name, symbol, decimals, totalSupply, setName, setSymbol, setDecimals, setTotalSupply, setDeployedAddress } =
     values;
 
-  const { chainId } = useActiveChainId();
+  const { isLoading, chainId } = useActiveChainId();
+  console.log("deploye loading", isLoading)
 
-  const factory = useTokenFactory(chainId);
+  if (isLoading === false) {
+    console.log("chainId", chainId)
 
-  const { onCreate } = useFactory(chainId, factory.payingToken.isNative ? factory.serviceFee : "0");
+    if (chainId != 900 && chainId != 901 && false) {
+      const factory = useTokenFactory(chainId);
+      console.log("factory", factory)
+      const { onCreate } = useFactory(chainId, factory.payingToken.isNative ? factory.serviceFee : "0");
 
-  const { pending, setPending }: any = useContext(DashboardContext);
+      const { pending, setPending }: any = useContext(DashboardContext);
 
-  const showError = (errorMsg: string) => {
-    if (errorMsg) toast.error(errorMsg);
-  };
+      const showError = (errorMsg: string) => {
+        if (errorMsg) toast.error(errorMsg);
+      };
 
-  const handleDeploy = async () => {
-    if (totalSupply === 0) {
-      toast.error("Total supply should be greater than zero");
-      return;
-    }
+      const handleDeploy = async () => {
+        if (totalSupply === 0) {
+          toast.error("Total supply should be greater than zero");
+          return;
+        }
 
-    setPending(true);
+        setPending(true);
 
-    try {
-      // deploy farm contract
-      const tx = await onCreate(name, symbol, decimals, totalSupply);
-
-      const iface = new ethers.utils.Interface(TokenFactoryAbi);
-      for (let i = 0; i < tx.logs.length; i++) {
         try {
-          const log = iface.parseLog(tx.logs[i]);
-          if (log.name === "StandardTokenCreated") {
-            const token = log.args.token;
-            setDeployedAddress(token);
-            // setStep(3);
-            break;
+          // deploy token contract
+          const tx = await onCreate(name, symbol, decimals, totalSupply);
+
+          const iface = new ethers.utils.Interface(TokenFactoryAbi);
+          for (let i = 0; i < tx.logs.length; i++) {
+            try {
+              const log = iface.parseLog(tx.logs[i]);
+              if (log.name === "StandardTokenCreated") {
+                const token = log.args.token;
+                setDeployedAddress(token);
+                // setStep(3);
+                break;
+              }
+            } catch (e) { }
           }
-        } catch (e) {}
-      }
-    } catch (e) {
-      console.log(e);
-      handleWalletError(e, showError, getNativeSymbol(chainId));
-      // setStep(2);
+        } catch (e) {
+          console.log(e);
+          handleWalletError(e, showError, getNativeSymbol(chainId));
+          // setStep(2);
+        }
+        setPending(false);
+      };
     }
-    setPending(false);
-  };
+  }
 
   const form = useForm<z.infer<typeof tokenDeployerSchema>>({
     resolver: zodResolver(tokenDeployerSchema),
@@ -95,7 +102,7 @@ const Deploy = ({ values }) => {
     setDeployerStep("confirm");
   };
 
-  return (
+  return !isLoading && (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mb-8 space-y-4">
         <div className="my-8">

@@ -123,7 +123,7 @@ const NFTCard = ({ nft }: { nft: any }) => {
       await onClaim();
 
       dispatch(fetchNftUserDataAsync(chainId, account));
-      toast.success(`Brewlabs Flask NFT was unstaked and Brewlabs Mirror NFT was burned.`);
+      toast.success(`Rewards harvested!`);
     } catch (error) {
       console.log(error);
       handleWalletError(error, showError, getNativeSymbol(chainId));

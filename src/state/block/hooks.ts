@@ -90,6 +90,7 @@ export const useChainCurrentBlocks = () => {
   blocks[ChainId.BSC_MAINNET] = useChainCurrentBlock(ChainId.BSC_MAINNET);
   blocks[ChainId.POLYGON] = useChainCurrentBlock(ChainId.POLYGON);
   blocks[ChainId.AVALANCHE] = useChainCurrentBlock(ChainId.AVALANCHE);
+  blocks[ChainId.ARBITRUM] = useChainCurrentBlock(ChainId.ARBITRUM);
   return blocks;
 };
 
