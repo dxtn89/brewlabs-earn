@@ -19,20 +19,32 @@ import { useDeployerState, setTokenInfo, setTokenImageDisplayUrl, setDeployerSte
 
 const DeployDetails = () => {
   const [tokenImageDisplayUrl] = useDeployerState("tokenImageDisplayUrl");
+  const [{
+    tokenName,
+    tokenImage,
+    tokenDescription,
+    tokenSymbol,
+    tokenDecimals,
+    tokenTotalSupply,
+    tokenImmutable,
+    tokenRevokeFreeze,
+    tokenRevokeMint,
+    tokenBurnPercentage
+  }] = useDeployerState("tokenInfo");
 
   const form = useForm<z.infer<typeof tokenDeployerSchema>>({
     resolver: zodResolver(tokenDeployerSchema),
     defaultValues: {
-      tokenName: "",
-      tokenSymbol: "",
-      tokenDecimals: 18,
-      tokenTotalSupply: 0,
-      tokenImage: undefined,
-      tokenDescription: "",
-      tokenImmutable: false,
-      tokenRevokeFreeze: false,
-      tokenRevokeMint: false,
-      tokenBurnPercentage: "0",
+      tokenName: tokenName ?? "",
+      tokenSymbol: tokenSymbol ?? "",
+      tokenDecimals: tokenDecimals ?? 9,
+      tokenTotalSupply: tokenTotalSupply ?? 1000,
+      tokenImage: tokenImage ?? undefined,
+      tokenDescription: tokenDescription ?? "token Description",
+      tokenImmutable: tokenImmutable ?? false,
+      tokenRevokeFreeze: tokenRevokeFreeze ?? false,
+      tokenRevokeMint: tokenRevokeMint ?? false,
+      tokenBurnPercentage: tokenBurnPercentage ?? "0",
     },
   });
 
@@ -182,7 +194,7 @@ const DeployDetails = () => {
 
         <h4 className="mb-6 text-xl">Advanced options</h4>
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="tokenBurnPercentage"
           render={({ field }) => (
@@ -206,7 +218,7 @@ const DeployDetails = () => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}
