@@ -65,7 +65,6 @@ const ConnectWallet = ({ allowDisconnect }: ConnectWalletProps) => {
 
   useEffect(() => {
     if (wallet.publicKey) {
-      console.log(wallet.publicKey.toBase58());
       getUserSOLBalance(wallet.publicKey, connection);
     }
   }, [wallet.publicKey, connection, getUserSOLBalance]);

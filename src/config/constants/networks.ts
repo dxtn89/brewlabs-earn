@@ -15,8 +15,7 @@ enum ExtendedChainId {
   GOERLI = 5,
   BSC_TESTNET = 97,
   // Add Solana chain id for deployer
-  SOLANA_MAINNET = 900,
-  SOLANA_DEVNET = 901,
+  SOLANA = 900,
 }
 
 // Augment ChainId type to include the new extended values
@@ -60,8 +59,7 @@ export const PAGE_SUPPORTED_CHAINS: { [key: string]: AugmentedChainId[] } = {
     ChainId.BSC_MAINNET,
     ChainId.POLYGON,
     ChainId.ARBITRUM,
-    ExtendedChainId.SOLANA_MAINNET,
-    ExtendedChainId.SOLANA_DEVNET,
+    ExtendedChainId.SOLANA,
   ],
   swap: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.ARBITRUM, ChainId.POLYGON, ChainId.FANTOM, ChainId.BSC_TESTNET],
   add: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.BSC_TESTNET],

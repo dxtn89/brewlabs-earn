@@ -3,7 +3,7 @@ import { utils } from "ethers";
 import { Connector } from "wagmi";
 
 import { bridgeConfigs } from "config/constants/bridge";
-import { CHAIN_LABLES, SupportedChains } from "config/constants/networks";
+import { AugmentedChainId, CHAIN_LABLES, SupportedChains } from "config/constants/networks";
 import { BridgeToken } from "config/constants/types";
 import { bsc } from "contexts/wagmi";
 
@@ -48,7 +48,7 @@ export const getNetworkLabel = (chainId: ChainId) => {
   return CHAIN_LABLES[chainId] ?? "No Network Selected";
 };
 
-export const getNativeSymbol = (chainId: ChainId) => {
+export const getNativeSymbol = (chainId: AugmentedChainId) => {
   return SupportedChains.find((n) => n.id === chainId) ? NATIVE_CURRENCIES[chainId].symbol : bsc.nativeCurrency.symbol;
 };
 

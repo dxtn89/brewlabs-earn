@@ -1,3 +1,4 @@
+import { AugmentedChainId } from './../config/constants/networks';
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { ChainId } from "@brewlabs/sdk";
@@ -45,12 +46,13 @@ export function useLocalNetworkChain() {
   return undefined;
 }
 
-export const useActiveChainId = (): { chainId: ChainId; isWrongNetwork: any; isNotMatched: any; isLoading: any } => {
+export const useActiveChainId = (): { chainId: AugmentedChainId; isWrongNetwork: any; isNotMatched: any; isLoading: any } => {
   const { chain } = useNetwork();
   const localChainId = useLocalNetworkChain();
   const queryChainId = useQueryChainId();
   const isNotMatched = useMemo(() => chain && localChainId && chain.id !== localChainId, [chain, localChainId]);
   // const isNotMatched = false;
+
   const { isSolanaNetwork, setIsSolanaNetwork } = useSolanaNetwork();
   useEffect(() => {
     if (queryChainId === 900 || queryChainId === 901) setIsSolanaNetwork(true);

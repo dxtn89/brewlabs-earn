@@ -20,13 +20,10 @@ import { useCallback } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
   Keypair,
-  PublicKey,
   Transaction,
-  Connection,
   SystemProgram,
   clusterApiUrl,
 } from '@solana/web3.js';
-import * as web3 from '@solana/web3.js';
 import {
   TOKEN_PROGRAM_ID,
   TOKEN_2022_PROGRAM_ID,
@@ -54,9 +51,13 @@ import {
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { nftStorageUploader } from '@metaplex-foundation/umi-uploader-nft-storage'
 import { createGenericFileFromBrowserFile } from "@metaplex-foundation/umi";
+import { NFT_STORAGE_TOKEN, API_URL } from "config/constants";
+import { useSolanaNetwork } from "contexts/SolanaNetworkContext";
+import { useAccount, useNetwork } from "wagmi";
 
 const DeployConfirmation = () => {
-  // const { chain } = useNetwork();
+  const { isConnected: isEVMConnected, connector } = useAccount();
+  const { chain: EVMChain } = useNetwork();
 
   const { chainId, isLoading } = useActiveChainId();
   const { connection } = useConnection();
@@ -79,59 +80,27 @@ const DeployConfirmation = () => {
     tokenRevokeMint
   }] = useDeployerState("tokenInfo");
 
-  console.log(useDeployerState("tokenInfo"))
-
   const umi = useMemo(() =>
     createUmi(clusterApiUrl("devnet"))
-      .use(nftStorageUploader({ token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGNiQzVGMTk4ZmNjNjIxQ2FDOTU1N0U1OTYxMTM0RTMxMjAyOTExM0EiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwNzQyMDI1OTgyOCwibmFtZSI6IlVNSSB1cGxvYWQifQ.HR_aJn-tNB4ESPbxbVmCJEFx5VjSM1oum2iOnlnz7D0' })),
+      .use(nftStorageUploader({ token: NFT_STORAGE_TOKEN })),
     [createUmi, nftStorageUploader]
   );
 
-  const factory = useTokenFactory(chainId);
+  let factory;
+  if (isEVMConnected === true)
+    factory = useTokenFactory(EVMChain.id);
 
-  // const { onCreate } = useFactory(chainId, factory.payingToken.isNative ? factory.serviceFee : "0");
-
-  // const handleDeploy = async () => {
-  //   setIsDeploying(true);
-
-  //   try {
-  //     // Deploy farm contract
-  //     const tx = await onCreate(tokenName, tokenSymbol, tokenDecimals, tokenTotalSupply.toString());
-
-  //     const iface = new ethers.utils.Interface(TokenFactoryAbi);
-
-  //     for (let i = 0; i < tx.logs.length; i++) {
-  //       try {
-  //         const log = iface.parseLog(tx.logs[i]);
-  //         if (log.name === "StandardTokenCreated") {
-  //           const token = log.args.token;
-  //           setDeployedAddress(token);
-  //           setDeployerStep("success");
-  //           break;
-  //         }
-  //       } catch (e) {}
-  //     }
-  //   } catch (e) {
-  //     toast.error("Error deploying token contract");
-  //   }
-  //   setIsDeploying(false);
-  // };
+  const { onCreate } = useFactory(chainId, factory.payingToken.isNative ? factory.serviceFee : "0");
 
   const handleDeploy = async () => {
-    // setTimeout(() => {
-    //   setDeployedAddress("0x1234");
-    //   setDeployerStep("success");
-    // }, 1000);
-    console.log("chainId", chainId)
-    if (chainId === (900 as ChainId) || chainId === (901 as ChainId)) {
-      deployTokenSolana();
-      return;
+    // setIsDeploying(true);
+    if (chainId === (900 as ChainId)) {
+      await deployTokenSolana();
     }
     else {
-      deployTokenEVM();
-      return;
+      await deployTokenEVM();
     }
-    console.log("unsupported chain")
+    // setIsDeploying(false);
   };
 
   const deployTokenSolana = useCallback(async () => {
@@ -143,16 +112,14 @@ const DeployConfirmation = () => {
     const mintAuthority = walletPublicKey;
     // Authority that can update token metadata
     const updateAuthority = tokenImmutable ? null : walletPublicKey;
-    // const updateAuthority = walletPublicKey;
     // Authority that can freeze token account
     const freezeAuthority = tokenRevokeFreeze ? null : walletPublicKey;
-    // const freezeAuthority = walletPublicKey;
 
     const tokenATA = await getAssociatedTokenAddressSync(mintKeypair.publicKey, walletPublicKey, false, TOKEN_2022_PROGRAM_ID);
 
     // Upload the asset.
     const file = await createGenericFileFromBrowserFile(tokenImage[0]);
-    // const file = tokenImage;
+
     const [fileUri] = await umi.uploader.upload([file]);
     console.log("image uri", fileUri)
 
@@ -299,69 +266,87 @@ const DeployConfirmation = () => {
     if (tokenImmutable == true)
       transaction.add(updateAuthorityInstruction)
 
-    // createNewTokenTransaction.feePayer = publicKey
+    // Setting the latest blockhash
+    // transaction.feePayer = publicKey
     // let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
-    // console.log("blockhash", blockhash)
-    // createNewTokenTransaction.recentBlockhash = blockhash;
-    console.log("NT transation", transaction)
-    // return;
+    // transaction.recentBlockhash = blockhash;
+
     const signature = await sendTransaction(transaction, connection, { signers: [mintKeypair] });
 
-    console.log(
-      "Transaction :",
-      `https://solana.fm/tx/${signature}?cluster=devnet-solana`
-    );
-    console.log(
-      "\nMint Account:",
-      `https://solana.fm/address/${mint}?cluster=devnet-solana`
-    );
+    toast.success(`Transaction: https://solana.fm/tx/${signature}?cluster=devnet-solana\nMint Account: https://solana.fm/address/${mint}?cluster=devnet-solana`);
 
     setDeployedAddress(mint.toString());
     setDeployerStep("success");
   }, [walletPublicKey, connection, sendTransaction]);
 
   const deployTokenEVM = async () => {
-    console.log("deploy EVM token");
+    // console.log("deploy EVM token");
+
+    try {
+      const tx = await onCreate(tokenName, tokenSymbol, tokenDecimals, tokenTotalSupply.toString());
+
+      const iface = new ethers.utils.Interface(TokenFactoryAbi);
+
+      for (let i = 0; i < tx.logs.length; i++) {
+        try {
+          const log = iface.parseLog(tx.logs[i]);
+          if (log.name === "StandardTokenCreated") {
+            const token = log.args.token;
+            setDeployedAddress(token);
+            setDeployerStep("success");
+            break;
+          }
+        } catch (e) { }
+      }
+    } catch (e) {
+      toast.error("Error deploying token contract");
+    }
   }
+
+  const { isSolanaNetwork } = useSolanaNetwork();
 
   return (
     <div className={`mx-auto my-8 max-w-xl ${isDeploying && "animate-pulse"}`}>
-      {isDeploying && (
+      {isDeploying ? (
         <div className="absolute inset-0 flex h-full w-full items-center justify-between rounded-3xl bg-zinc-900/40">
           <Loader2 className="mx-auto h-12 w-12 animate-spin" />
         </div>
-      )}
+      ) : <>
 
-      <h4 className="mb-6 text-xl">Summary</h4>
+        <h4 className="mb-6 text-xl">Summary</h4>
 
-      <p className="my-2">You are about to deploy a new token contract on the __insert name__ network.</p>
-      <p className="my-2">Please confirm the details.</p>
+        <p className="my-2">You are about to deploy a new token contract on the __insert name__ network.</p>
+        <p className="my-2">Please confirm the details.</p>
 
-      <TokenSummary />
+        <TokenSummary />
 
-      <div className="flex items-center justify-between p-4">
-        <div className="font-bold text-gray-200">Total fee</div>
-        <div className="font-bold text-brand">
-          {/* {formatEther(BigInt(factory.serviceFee))} {getNativeSymbol(chainId)} */}
+        <div className="flex items-center justify-between p-4">
+          <div className="font-bold text-gray-200">Total fee</div>
+          <div className="font-bold text-brand">
+            {isSolanaNetwork ? "1 SOL" :
+              `${formatEther(BigInt(factory.serviceFee))}  ${getNativeSymbol(chainId)}`
+            }
+          </div>
         </div>
-      </div>
 
-      <div className="mt-4 flex gap-2">
-        <Button type="button" onClick={() => setDeployerStep("details")} className="flex w-full items-center gap-2">
-          Edit <Pen className="h-4 w-4" />
-        </Button>
+        <div className="mt-4 flex gap-2">
+          <Button type="button" onClick={() => setDeployerStep("details")} className="flex w-full items-center gap-2">
+            Edit <Pen className="h-4 w-4" />
+          </Button>
 
-        {isLoading ?
-          (
-            <div>Loading</div>
-          ) :
-          (
-            <Button type="button" onClick={() => handleDeploy()} variant="brand" className="w-full">
-              Deploy
-            </Button>
-          )
-        }
-      </div>
+          {isLoading ?
+            (
+              <div>Loading</div>
+            ) :
+            (
+              <Button type="button" onClick={() => handleDeploy()} variant="brand" className="w-full">
+                Deploy
+              </Button>
+            )
+          }
+        </div>
+      </>
+      }
     </div>
   );
 };
