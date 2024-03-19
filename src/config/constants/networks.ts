@@ -23,7 +23,7 @@ export type AugmentedChainId = ChainId | ExtendedChainId;
 
 export const SupportedChains = [bsc, mainnet, arbitrum, polygon, avalanche, fantom, cronos, brise, bscTestnet, goerli];
 
-const customChainIds = [900, 901]; // New custom chain IDs to be added
+const customChainIds = [900]; // New custom chain IDs to be added
 
 export const SUPPORTED_CHAIN_IDS = [
   ...SupportedChains.map((chain) => chain.id),
@@ -54,13 +54,7 @@ export const PAGE_SUPPORTED_CHAINS: { [key: string]: AugmentedChainId[] } = {
     ChainId.BRISE,
   ],
   indexes: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON],
-  deployer: [
-    ChainId.ETHEREUM,
-    ChainId.BSC_MAINNET,
-    ChainId.POLYGON,
-    ChainId.ARBITRUM,
-    ExtendedChainId.SOLANA,
-  ],
+  deployer: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.ARBITRUM, ExtendedChainId.SOLANA],
   swap: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.ARBITRUM, ChainId.POLYGON, ChainId.FANTOM, ChainId.BSC_TESTNET],
   add: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.BSC_TESTNET],
   remove: [ChainId.ETHEREUM, ChainId.BSC_MAINNET, ChainId.POLYGON, ChainId.BSC_TESTNET],
@@ -107,6 +101,7 @@ export const EXPLORER_URLS = {
   [ChainId.BSC_MAINNET]: "https://bscscan.com",
   [ChainId.POLYGON]: "https://polygonscan.com",
   [ChainId.FANTOM]: "https://ftmscan.com",
+  [ExtendedChainId.SOLANA]: "https://solscan.io",
 };
 
 export const EXPLORER_API_URLS = {
@@ -139,7 +134,7 @@ export const CHAIN_LABLES = {
   [ChainId.BSC_TESTNET]: "BSC Testnet",
 
   900: "Solana",
-  901: "Solana Devnet",
+  // 901: "Solana Devnet",
 };
 
 export const CHAIN_ICONS = {
@@ -158,7 +153,7 @@ export const CHAIN_ICONS = {
   324: "/images/networks/zksync.png",
 
   900: "/images/networks/Solana_logo.png",
-  901: "/images/networks/solana.png",
+  // 901: "/images/networks/solana.png",
 };
 
 export const EXPLORER_LOGO = {

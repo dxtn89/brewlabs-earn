@@ -19,5 +19,5 @@ export const tokenDeployerSchema = z.object({
   tokenImmutable: z.boolean(),
   tokenRevokeFreeze: z.boolean(),
   tokenRevokeMint: z.boolean(),
-  tokenBurnPercentage: z.string(),
+  // tokenBurnPercentage: z.string(),
 });

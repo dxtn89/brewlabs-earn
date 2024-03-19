@@ -11,7 +11,7 @@ import { Chain } from "viem";
 
 const initialState = {
   token: PAGE_SUPPORTED_CHAINS["deployer"].map((chainId) => {
-    if (chainId == 900 || chainId == 901) {
+    if (chainId == 900 ) {
       return null; // Skip mapping for chainId 900 or 901
     }
     return {
@@ -22,7 +22,7 @@ const initialState = {
     };
   }).filter(Boolean), // Filter out null values
   farm: PAGE_SUPPORTED_CHAINS["deployer"].map((chainId) => {
-    if (chainId == 900 || chainId == 901) {
+    if (chainId == 900 ) {
       return null; // Skip mapping for chainId 900 or 901
     }
     return {
@@ -33,7 +33,7 @@ const initialState = {
     };
   }).filter(Boolean), // Filter out null values 
   pool: PAGE_SUPPORTED_CHAINS["deployer"].map((chainId) => {
-    if (chainId === 900 || chainId === 901) {
+    if (chainId === 900 ) {
       return null; // Skip mapping for chainId 900 or 901
     }
     return {
@@ -44,7 +44,7 @@ const initialState = {
     };
   }).filter(Boolean), // Filter out null values
   indexes: PAGE_SUPPORTED_CHAINS["deployer"].map((chainId) => {
-    if (chainId === 900 || chainId === 901) {
+    if (chainId === 900 ) {
       return null; // Skip mapping for chainId 900 or 901
     }
     return {

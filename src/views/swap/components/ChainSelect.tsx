@@ -28,7 +28,7 @@ const ChainSelect = ({ id }: ChainSelectProps) => {
 
   return (
     <>
-      <motion.div className="mb-4 rounded-full border border-gray-600  bg-opacity-60 py-2 pl-2 pr-4 font-brand text-gray-400 focus-within:border-amber-300 hover:border-amber-300 dark:bg-zinc-900 dark:bg-opacity-60 dark:text-white">
+      <motion.div className="mb-4 rounded-full border border-gray-600 bg-zinc-900 bg-opacity-60 py-2 pl-2 pr-4 font-brand text-white focus-within:border-amber-300 hover:border-amber-300">
         <button
           type="button"
           className="flex w-full items-center justify-between"
@@ -39,7 +39,7 @@ const ChainSelect = ({ id }: ChainSelectProps) => {
           <div className="flex gap-2">
             {network && network.image !== "" && (
               <div
-                className="-mr-4 h-6 w-6 overflow-hidden rounded-full bg-cover bg-no-repeat dark:bg-slate-800"
+                className="-mr-4 h-6 w-6 overflow-hidden rounded-full bg-cover bg-no-repeat"
                 style={{
                   backgroundImage: `url('${network.image}')`,
                 }}

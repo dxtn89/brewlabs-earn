@@ -1,6 +1,6 @@
 import { ChainId, Currency, NATIVE_CURRENCIES, Token, WNATIVE } from "@brewlabs/sdk";
 import { ethers } from "ethers";
-import { CHAIN_ICONS, EMPTY_TOKEN_LOGO, EXPLORER_LOGO, EXPLORER_NAMES, EXPLORER_URLS } from "config/constants/networks";
+import { AugmentedChainId, CHAIN_ICONS, EMPTY_TOKEN_LOGO, EXPLORER_LOGO, EXPLORER_NAMES, EXPLORER_URLS } from "config/constants/networks";
 import { getNativeSymbol } from "lib/bridge/helpers";
 import { DEX_LOGOS } from "config/constants/swap";
 import { toast } from "react-toastify";
@@ -27,7 +27,7 @@ export const BigNumberFormat = (str: any, decimals: number = 2) => {
 export function getBlockExplorerLink(
   data: string | number,
   type: "transaction" | "token" | "address" | "block" | "countdown",
-  chainId: ChainId = ChainId.ETHEREUM
+  chainId: AugmentedChainId = ChainId.ETHEREUM
 ): string {
   switch (type) {
     case "transaction": {
@@ -48,7 +48,7 @@ export function getBlockExplorerLink(
   }
 }
 
-export const getBlockExplorerLogo = (chainId: ChainId = ChainId.ETHEREUM) => {
+export const getBlockExplorerLogo = (chainId: AugmentedChainId = ChainId.ETHEREUM) => {
   return `/images/explorer/${EXPLORER_NAMES[chainId].toLowerCase()}.png`;
 };
 

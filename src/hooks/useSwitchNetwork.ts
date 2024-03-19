@@ -76,7 +76,7 @@ export function useSwitchNetwork() {
   const { isSolanaNetwork, setIsSolanaNetwork } = useSolanaNetwork();
   const switchNetwork = useCallback(
     (chainId: number) => {
-      if (chainId === 900 || chainId === 901) {
+      if (chainId === 900 ) {
         setIsSolanaNetwork(true);
         return switchNetworkSolana(chainId);
       } else {

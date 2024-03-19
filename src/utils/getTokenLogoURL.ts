@@ -1,5 +1,5 @@
 import { ChainId, WNATIVE } from "@brewlabs/sdk";
-import { CHAIN_KEYS } from "config/constants/networks";
+import { AugmentedChainId, CHAIN_KEYS } from "config/constants/networks";
 import { ASSET_PATH } from "config/constants/endpoints";
 import { BAD_SRCS, BAD_SRCS_SUSHI } from "config/constants/lists";
 import { AppId } from "config/constants/types";
@@ -7,7 +7,7 @@ import { DEXSCREENER_CHAINNAME, DEXTOOLS_CHAINNAME, DEX_GURU_CHAIN_NAME, TRUSTWA
 
 // `https://assets.trustwalletapp.com/blockchains/smartchain/assets/${address}/logo.png`;
 
-const getTokenLogoURL = (address: string, chainId: ChainId, logo?: string, appId?: AppId, tokenSymbol?: string) => {
+const getTokenLogoURL = (address: string, chainId: AugmentedChainId, logo?: string, appId?: AppId, tokenSymbol?: string) => {
   if (logo) return [logo];
   if (!address) return [];
   if (address.toLowerCase() === "0x2f86747a9c5db9b80840a3a588e2b87f367188d6") return ["/images/brewlabs.jpg"];

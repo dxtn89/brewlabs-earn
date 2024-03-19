@@ -58,7 +58,7 @@ const ConnectWallet = ({ allowDisconnect }: ConnectWalletProps) => {
   }, [isConnected, connector, disconnect]);
 
   useEffect(() => {
-    if (chainId === (900 as ChainId) || chainId === (901 as ChainId)) {
+    if (chainId === (900 as ChainId)) {
       setIsSolanaNetwork(true);
     } else setIsSolanaNetwork(false);
   }, [chainId, setIsSolanaNetwork]);

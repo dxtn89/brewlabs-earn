@@ -86,7 +86,7 @@ const SwitchNetworkModal = ({ open, networks, onDismiss }: SwitchNetworkModalPro
                         <p className="text-sm font-medium text-gray-200">{network.name}</p>
                         <p className="text-sm text-gray-500">
                           Current price: {` $`}
-                          {network.id == (900 as ChainId) || network.id == (901 as ChainId)
+                          {network.id == (900 as ChainId) 
                             ? "Solana token value"
                             : tokenPrices[
                                 getCurrencyId(

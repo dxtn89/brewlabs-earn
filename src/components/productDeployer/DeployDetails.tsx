@@ -29,7 +29,7 @@ const DeployDetails = () => {
     tokenImmutable,
     tokenRevokeFreeze,
     tokenRevokeMint,
-    tokenBurnPercentage
+    // tokenBurnPercentage
   }] = useDeployerState("tokenInfo");
 
   const form = useForm<z.infer<typeof tokenDeployerSchema>>({
@@ -44,7 +44,7 @@ const DeployDetails = () => {
       tokenImmutable: tokenImmutable ?? false,
       tokenRevokeFreeze: tokenRevokeFreeze ?? false,
       tokenRevokeMint: tokenRevokeMint ?? false,
-      tokenBurnPercentage: tokenBurnPercentage ?? "0",
+      // tokenBurnPercentage: tokenBurnPercentage ?? "0",
     },
   });
 
@@ -193,32 +193,6 @@ const DeployDetails = () => {
         <div className="divider" />
 
         <h4 className="mb-6 text-xl">Advanced options</h4>
-
-        {/* <FormField
-          control={form.control}
-          name="tokenBurnPercentage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Token burn percentage</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an optional burn rate on token swaps" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="0">0% burn</SelectItem>
-                  <SelectItem value="1">1% burn</SelectItem>
-                  <SelectItem value="2">2% burn</SelectItem>
-                  <SelectItem value="3">3% burn</SelectItem>
-                  <SelectItem value="4">4% burn</SelectItem>
-                  <SelectItem value="5">5% burn</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <FormField
           control={form.control}

@@ -12,10 +12,15 @@ import { BridgeToken } from "config/constants/types";
 
 import { useDeployerState } from "state/deploy/deployer.store";
 import { ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useSolanaNetwork } from "contexts/SolanaNetworkContext";
 
 const SuccessfulDeploy = () => {
   const { connector, address } = useAccount();
   const { chainId } = useActiveChainId();
+  const { publicKey: walletPublicKey } = useWallet();
+  const { isSolanaNetwork } = useSolanaNetwork();
+
   const [isCopied, setIsCopied] = useState(false);
   const [deployedAddress] = useDeployerState("deployedAddress");
   const [{ tokenSymbol, tokenDecimals }] = useDeployerState("tokenInfo");
@@ -75,7 +80,9 @@ const SuccessfulDeploy = () => {
         </p>
         <p className="flex items-center gap-2">
           <UserCheck2 className="h-6 w-6" /> Deployed to{" "}
-          <span className="rounded-3xl px-2 py-1 text-sm ring-1 ring-zinc-600">{address}</span>
+          <span className="rounded-3xl px-2 py-1 text-sm ring-1 ring-zinc-600">
+            {isSolanaNetwork ? walletPublicKey.toString() : address}
+          </span>
         </p>
 
         <TokenSummary />
